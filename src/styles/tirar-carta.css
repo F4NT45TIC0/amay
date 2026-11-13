@@ -1,0 +1,136 @@
+body.travado { overflow: hidden; }
+
+/* ================= Palco da tiragem ================= */
+.tirar { position: fixed; inset: 0; overflow: hidden; isolation: isolate; }
+.tirar__fundo { position: absolute; inset: 0; z-index: -1; }
+.tirar__ceu {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 45% at 50% 28%, rgba(120, 32, 40, 0.38), transparent 70%),
+    radial-gradient(ellipse 90% 70% at 50% 110%, rgba(90, 21, 32, 0.6), transparent 70%),
+    linear-gradient(180deg, #170709, #200a0e 55%, #12060a);
+}
+.tirar__montes { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 75%; }
+.tirar__nevoa {
+  position: absolute; inset: -10% -30%;
+  background: radial-gradient(ellipse 30% 14% at 30% 62%, rgba(230, 200, 170, 0.08), transparent 70%),
+              radial-gradient(ellipse 24% 10% at 72% 55%, rgba(230, 200, 170, 0.07), transparent 70%);
+  animation: nevoa 38s ease-in-out infinite alternate;
+}
+.tirar__nevoa--2 { animation-duration: 52s; animation-direction: alternate-reverse; opacity: 0.8; }
+@keyframes nevoa { from { transform: translateX(-6%); } to { transform: translateX(6%); } }
+
+.tirar__voltar {
+  position: absolute; top: 26px; left: clamp(16px, 3vw, 40px);
+  display: inline-flex; align-items: center; gap: 12px;
+  text-decoration: none; color: var(--creme); font-size: 11px; z-index: 3;
+}
+.tirar__voltar-icone { width: 26px; height: 9px; position: relative; }
+.tirar__voltar-icone::before { content: ''; position: absolute; left: 6px; right: 0; top: 4px; height: 1px; background: var(--ouro); }
+.tirar__voltar-icone::after {
+  content: ''; position: absolute; left: 0; top: 0; width: 7px; height: 7px;
+  border: 1px solid var(--ouro); transform: rotate(45deg); background: var(--fundo);
+}
+.tirar__voltar:hover { color: var(--ouro-claro); }
+
+.tirar__texto {
+  position: absolute; left: 50%; top: 26%; transform: translateX(-50%);
+  width: min(92vw, 640px);
+  text-align: center; text-transform: none; letter-spacing: 0.02em;
+  font-size: clamp(12px, 1.2vw, 14px); line-height: 2; color: var(--creme);
+  display: grid; min-height: 4em;
+}
+
+/* ---- leque ---- */
+.leque { position: absolute; left: 50%; bottom: 0; width: 0; height: 0; transform: translateY(var(--centro-y, 40vh)); z-index: 2; }
+.leque__roda { position: absolute; left: 0; top: 0; width: 0; height: 0; }
+.carta-leque {
+  position: absolute; left: 0; top: 0;
+  width: clamp(96px, 12.5vw, 176px);
+  aspect-ratio: 300 / 518;
+  padding: 0;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: pan-y;
+}
+.carta-leque__dentro { display: block; width: 100%; height: 100%; border-radius: 10px; box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.55); }
+.carta-leque__dentro img { width: 100%; height: 100%; border-radius: 10px; pointer-events: none; user-select: none; }
+.carta-leque:focus-visible .carta-leque__dentro { box-shadow: 0 0 0 2px var(--ouro), 0 -6px 24px rgba(0, 0, 0, 0.55); }
+
+/* ---- carta em voo ---- */
+.voo { position: fixed; z-index: 5; aspect-ratio: 300 / 518; perspective: 1400px; pointer-events: none; }
+.voo__dentro { position: absolute; inset: 0; transform-style: preserve-3d; }
+.voo__face { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 10px; backface-visibility: hidden; -webkit-backface-visibility: hidden; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7); object-fit: cover; }
+.voo__face--frente { transform: rotateY(180deg); border: 1px solid var(--ouro-fraco); }
+
+/* ================= Revelação (moldura em tela cheia) ================= */
+.revelacao { position: relative; height: 100svh; min-height: 560px; overflow: hidden; isolation: isolate; }
+.revelacao__arte {
+  position: absolute; inset: 0; z-index: -2;
+  background-size: cover; background-position: center 30%;
+  transform-origin: center;
+}
+.revelacao__veu { position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(18,7,9,.35), rgba(18,7,9,.15) 40%, rgba(18,7,9,.75)); }
+.revelacao__moldura.moldura { position: absolute; inset: clamp(10px, 2vw, 24px); padding: 0; border-color: var(--ouro); }
+.revelacao__rotulos { position: absolute; inset: 0; }
+.revelacao__num, .revelacao__nome {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  font-family: var(--fonte-titulo); color: var(--ouro-claro); letter-spacing: 0.12em; text-transform: uppercase;
+  background: rgba(18, 7, 9, 0.75); padding: 4px 16px; white-space: nowrap;
+}
+.revelacao__num { top: -14px; font-size: 18px; }
+.revelacao__nome { bottom: -14px; font-size: 15px; }
+.revelacao__frase {
+  position: absolute; left: clamp(28px, 6vw, 80px); top: clamp(60px, 12vh, 120px);
+  max-width: 340px; font-family: var(--fonte-rotulo); font-size: 13px; line-height: 1.75; color: var(--creme);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
+}
+.revelacao__dica { position: absolute; left: 0; right: 0; bottom: clamp(36px, 6vh, 60px); text-align: center; font-size: 10px; color: var(--creme-2); }
+
+/* ================= Cartão de resultado ================= */
+.resultado-area { position: relative; z-index: 1; padding: 0 var(--gutter) clamp(60px, 10vw, 120px); margin-top: -18vh; display: grid; justify-items: center; gap: clamp(48px, 8vw, 96px); }
+.resultado {
+  width: min(100%, 760px);
+  background: var(--creme); color: var(--tinta);
+  border-radius: 4px;
+  padding: 26px clamp(20px, 4vw, 44px) 34px;
+  box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.9);
+  --linha: rgba(58, 13, 20, 0.35);
+}
+.resultado__topo { display: flex; align-items: center; gap: 12px; color: var(--vinho); margin-bottom: 24px; }
+.resultado__cabeca { display: grid; grid-template-columns: minmax(110px, 200px) 1fr; gap: clamp(18px, 3vw, 36px); align-items: start; padding-bottom: 28px; border-bottom: 1px solid var(--linha); }
+.resultado__mini { width: 100%; height: auto; border-radius: 6px; box-shadow: 0 12px 30px rgba(28, 16, 18, 0.35); }
+.resultado__titulo { display: grid; gap: 14px; align-content: start; }
+.resultado__sub { font-family: var(--fonte-rotulo); font-size: 13px; }
+.resultado__nome { font-family: var(--fonte-display); font-weight: 800; font-size: clamp(32px, 5.6vw, 58px); line-height: 0.92; text-transform: uppercase; letter-spacing: -0.03em; }
+.resultado__frase { font-family: var(--fonte-rotulo); font-size: 14px; line-height: 1.7; }
+.resultado__grade { display: grid; grid-template-columns: 1fr 1fr; }
+.resultado__bloco { padding: 22px 0 6px; display: grid; gap: 10px; align-content: start; }
+.resultado__bloco:nth-child(odd) { padding-right: clamp(14px, 3vw, 28px); border-right: 1px solid var(--linha); }
+.resultado__bloco:nth-child(even) { padding-left: clamp(14px, 3vw, 28px); }
+.resultado__bloco:nth-child(n + 3) { border-top: 1px solid var(--linha); }
+.resultado__rotulo { display: flex; align-items: center; gap: 10px; font-size: 11px; color: var(--vinho); }
+.resultado__texto { font-family: var(--fonte-rotulo); font-size: 13px; line-height: 1.7; }
+.losango { width: 6px; height: 6px; border: 1px solid var(--vinho); transform: rotate(45deg); flex: none; }
+
+/* ---- ponte para a venda ---- */
+.ponte { width: min(100%, 760px); display: grid; justify-items: center; text-align: center; gap: 22px; }
+.ponte__pergunta { font-family: var(--fonte-display); font-weight: 800; font-size: clamp(24px, 4vw, 40px); line-height: 1.05; text-transform: uppercase; letter-spacing: -0.02em; }
+.ponte__pergunta em { font-style: normal; color: var(--ouro-claro); }
+.ponte__metodo { border: 1px solid var(--ouro-fraco); padding: 24px clamp(18px, 4vw, 40px); display: grid; gap: 10px; width: 100%; }
+.ponte__rotulo { color: var(--ouro); font-size: 11px; }
+.ponte__nome { font-family: var(--fonte-script); font-size: clamp(38px, 6vw, 54px); line-height: 1.1; color: var(--ouro-claro); }
+.ponte__desc { font-family: var(--fonte-rotulo); font-size: 13px; line-height: 1.7; color: var(--creme-2); max-width: 520px; margin-inline: auto; }
+.ponte__preco { font-family: var(--fonte-display); font-weight: 700; font-size: 22px; }
+.ponte__acoes { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 26px; }
+
+@media (max-width: 760px) {
+
+  .carta-leque { width: 25vw; }
+  .tirar__texto { top: 20%; }
+  .resultado__cabeca { grid-template-columns: 96px 1fr; }
+  .resultado__grade { grid-template-columns: 1fr; }
+  .resultado__bloco:nth-child(n) { padding: 18px 0 6px; border-right: 0; border-top: 1px solid var(--linha); }
+  .resultado__bloco:first-child { border-top: 0; }
+  .revelacao__frase { right: 28px; }
+}
