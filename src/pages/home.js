@@ -17,17 +17,22 @@ const secoes = document.createElement('div');
 secoes.className = 'secoes';
 app.append(secoes);
 
-const dados = await carregarOfertas();
-renderizarSecoes(secoes, dados, hojeLocal());
+async function montarSecoes() {
+  const dados = await carregarOfertas();
+  renderizarSecoes(secoes, dados, hojeLocal());
 
-if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
+  if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
 
-if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  secoes.querySelectorAll('.secao__cabecalho, .passo, .moldura, .cartao-creme, .tabela, .faq__item, .final > *, .sobre > p')
-    .forEach((alvo) => {
-      gsap.from(alvo, {
-        y: 40, opacity: 0, duration: 1.1, ease: 'expo.out',
-        scrollTrigger: { trigger: alvo, start: 'top 88%', once: true },
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    secoes.querySelectorAll('.secao__cabecalho, .passo, .moldura, .cartao-creme, .tabela, .faq__item, .final > *, .sobre > p')
+      .forEach((alvo) => {
+        gsap.from(alvo, {
+          y: 40, opacity: 0, duration: 1.1, ease: 'expo.out',
+          scrollTrigger: { trigger: alvo, start: 'top 88%', once: true },
+        });
       });
-    });
+  }
+  ScrollTrigger.refresh();
 }
+
+montarSecoes();
