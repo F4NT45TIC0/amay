@@ -1,0 +1,67 @@
+/* ================= Os Arcanos ================= */
+.arcanos { position: relative; min-height: 100svh; padding: clamp(70px, 10vh, 100px) clamp(10px, 2vw, 24px) clamp(24px, 4vh, 40px); }
+.arcanos .tirar__voltar { position: absolute; }
+.arcanos__moldura.moldura { max-width: 1240px; margin-inline: auto; padding: clamp(36px, 6vw, 72px) clamp(14px, 4vw, 60px); border-color: var(--ouro-fraco); }
+.arcanos__dentro { display: grid; gap: clamp(28px, 4vw, 48px); justify-items: center; }
+.arcanos__intro { text-transform: none; letter-spacing: 0.03em; font-size: 13px; color: var(--creme); text-align: center; }
+
+.arcanos__grade {
+  list-style: none; margin: 0; padding: 0; width: 100%;
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: clamp(10px, 1.6vw, 22px);
+}
+.arcano {
+  position: relative; display: block; text-decoration: none;
+  aspect-ratio: 4 / 5; border-radius: 10px; overflow: hidden;
+  border: 1px solid var(--ouro-fraco);
+  background: var(--fundo-2);
+  transition: translate 0.6s var(--ease), border-color 0.4s, box-shadow 0.6s var(--ease);
+}
+.arcano img {
+  width: 100%; height: 100%; object-fit: cover; object-position: 50% 12%;
+  scale: 1.06; transition: scale 1s var(--ease), filter 0.6s;
+  filter: saturate(0.85) brightness(0.9);
+}
+.arcano__num {
+  position: absolute; left: 8px; top: 6px; z-index: 1;
+  font-family: var(--fonte-titulo); font-size: 14px; color: var(--ouro-claro);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+}
+.arcano__nome {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 1;
+  padding: 18px 8px 8px; text-align: center;
+  font-family: var(--fonte-rotulo); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--creme);
+  background: linear-gradient(transparent, rgba(18, 7, 9, 0.92));
+  opacity: 0; translate: 0 8px; transition: opacity 0.4s, translate 0.5s var(--ease);
+}
+.arcano:hover, .arcano:focus-visible { translate: 0 -6px; border-color: var(--ouro); box-shadow: 0 0 28px rgba(201, 164, 92, 0.3), 0 18px 40px rgba(0, 0, 0, 0.6); outline: none; }
+.arcano:hover img, .arcano:focus-visible img { scale: 1.14; filter: saturate(1) brightness(1); }
+.arcano:hover .arcano__nome, .arcano:focus-visible .arcano__nome { opacity: 1; translate: 0 0; }
+/* o 22º (O Mundo) centralizado na última linha, como na referência */
+.arcanos__grade li:last-child { grid-column: 4; }
+
+/* ---- painel ---- */
+.painel { position: fixed; inset: 0; z-index: 7000; background: var(--fundo); }
+.painel__fundo {
+  position: absolute; inset: -8%;
+  background-size: cover; background-position: center;
+  filter: blur(30px) brightness(0.35) saturate(0.8) sepia(0.3);
+}
+.painel__fundo::after { content: ''; position: absolute; inset: 0; background: rgba(70, 14, 24, 0.4); }
+.painel__rolagem { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+.painel__corpo { display: grid; justify-items: center; gap: clamp(40px, 6vw, 72px); padding: clamp(80px, 12vh, 120px) var(--gutter) 80px; }
+.painel__fechar {
+  position: absolute; top: 22px; right: clamp(16px, 3vw, 40px); z-index: 2;
+  color: var(--creme); font-size: 11px; padding: 8px 4px;
+}
+.painel__fechar:hover { color: var(--ouro-claro); }
+
+@media (max-width: 900px) {
+  .arcanos__grade { grid-template-columns: repeat(4, 1fr); }
+  .arcanos__grade li:last-child { grid-column: auto; }
+}
+@media (max-width: 560px) {
+  .arcanos__grade { grid-template-columns: repeat(3, 1fr); }
+  .arcanos__grade li:last-child { grid-column: 2; }
+  .arcano__nome { opacity: 1; translate: 0 0; font-size: 9px; padding: 14px 4px 6px; }
+}

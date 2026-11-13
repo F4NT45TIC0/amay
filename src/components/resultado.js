@@ -20,7 +20,7 @@ function botaoAcao(texto, cta) {
  * Cartão creme do resultado + ponte para a venda.
  * Devolve os elementos de ação para a página ligar os eventos.
  */
-export function montarResultado(raiz, arcano, metodo, contato) {
+export function montarResultado(raiz, arcano, metodo, contato, { subtitulo = 'Você tirou', textoOutra = 'Tirar outra carta' } = {}) {
   const mensagem = metodo ? mensagemPara({ item: metodo, carta: arcano }) : mensagemPara();
 
   const cartao = el('article', { class: 'resultado' },
@@ -31,7 +31,7 @@ export function montarResultado(raiz, arcano, metodo, contato) {
     el('div', { class: 'resultado__cabeca' },
       el('img', { class: 'resultado__mini', src: arcano.imagem, alt: arcano.nome, width: 600, height: 1036 }),
       el('div', { class: 'resultado__titulo' },
-        el('p', { class: 'resultado__sub' }, 'Você tirou'),
+        el('p', { class: 'resultado__sub' }, subtitulo),
         el('h2', { class: 'resultado__nome' }, arcano.nome),
         el('p', { class: 'resultado__frase' }, arcano.frase))),
     el('div', { class: 'resultado__grade' },
@@ -52,7 +52,7 @@ export function montarResultado(raiz, arcano, metodo, contato) {
     botao({ texto: metodo ? 'Quero esta leitura' : 'Falar com a Amay', href: linkContato(contato, mensagem), 'data-cta': 'metodo' }),
     el('div', { class: 'ponte__acoes' },
       botao({ texto: 'Ver todas as leituras', href: '/#leituras', variante: 'secundario', 'data-cta': 'todas' }),
-      botaoAcao('Tirar outra carta', 'outra'),
+      botaoAcao(textoOutra, 'outra'),
       botaoAcao('Salvar minha carta', 'salvar')));
 
   raiz.append(cartao, ponte);

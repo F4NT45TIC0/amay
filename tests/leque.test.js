@@ -48,3 +48,9 @@ test('resultado sem método ainda oferece a consulta prévia', () => {
   montarResultado(raiz, ARCANOS[0], null, { whatsapp: '55' });
   expect(decodeURIComponent(raiz.querySelector('[data-cta="metodo"]').href)).toContain('consulta prévia');
 });
+
+test('resultado aceita outro subtítulo e texto de botão (página dos Arcanos)', () => {
+  montarResultado(raiz, ARCANOS[6], null, { whatsapp: '55' }, { subtitulo: 'Arcano Maior', textoOutra: 'Tirar uma carta' });
+  expect(raiz.querySelector('.resultado__sub').textContent).toBe('Arcano Maior');
+  expect(raiz.querySelector('[data-cta="outra"]').textContent).toContain('Tirar uma carta');
+});
