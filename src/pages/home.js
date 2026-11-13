@@ -1,5 +1,6 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { iniciarCinema } from '../lib/cinema.js';
 import '../styles/hero.css';
 import '../styles/secoes.css';
 import { montarHero } from '../components/hero.js';
@@ -7,7 +8,7 @@ import { renderizarSecoes } from '../components/secoes.js';
 import { carregarOfertas, hojeLocal } from '../lib/ofertas.js';
 
 gsap.registerPlugin(ScrollTrigger);
-if (import.meta.env.DEV) window.gsap = gsap; // só para inspeção local
+iniciarCinema({ poeira: true });
 
 const app = document.getElementById('app');
 montarHero(app);

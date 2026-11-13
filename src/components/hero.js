@@ -73,6 +73,12 @@ export function montarHero(raiz) {
     .from('.hero__acoes .botao', { opacity: 0, y: 16, duration: 1, stagger: 0.12 }, 1.2)
     .from('.barra-base', { opacity: 0, duration: 1 }, 1.4);
 
+  // flutuação lenta de cada carta, como se pairassem
+  cartas.forEach((c) => gsap.to(c, {
+    y: () => gsap.utils.random(-10, 10), duration: () => gsap.utils.random(4, 7),
+    ease: 'sine.inOut', yoyo: true, repeat: -1, delay: 2,
+  }));
+
   // leve paralaxe das colunas com o mouse
   if (matchMedia('(pointer: fine)').matches) {
     const movers = [...hero.querySelectorAll('.hero__coluna')].map((c, i) =>

@@ -18,7 +18,8 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "gsap": "^3.12.5"
+    "gsap": "^3.12.5",
+    "lenis": "^1.1.18"
   },
   "devDependencies": {
     "jsdom": "^25.0.1",

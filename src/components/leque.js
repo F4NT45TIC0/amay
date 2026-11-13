@@ -3,23 +3,28 @@ import { el } from '../lib/ornamentos.js';
 import { posicaoNoLeque, ehToque } from '../lib/leque.js';
 
 /**
- * Leque de cartas viradas. Chama `aoEscolher(arcano, elementoDaCarta)` uma única vez.
- * Mouse: hover levanta, clique escolhe, arrastar gira. Toque: arrastar gira, toque curto escolhe.
- * Teclado: Tab percorre, Enter/Espaço escolhe.
+ * Leque de cartas viradas. Chama `aoEscolher(arcano, elementoDaCarta, cartas)` uma única vez.
+ * Mouse: hover levanta (e afasta as vizinhas), clique escolhe, arrastar gira.
+ * Toque: arrastar gira, toque curto escolhe. Teclado: Tab percorre, Enter/Espaço escolhe.
  */
 export function montarLeque(palco, arcanos, aoEscolher, sinal) {
   const roda = el('div', { class: 'leque__roda' });
-  const leque = el('div', { class: 'leque', role: 'group', 'aria-label': 'Cartas viradas para baixo' }, roda);
+  const respiro = el('div', { class: 'leque__respiro' }, roda);
+  const leque = el('div', { class: 'leque', role: 'group', 'aria-label': 'Cartas viradas para baixo' }, respiro);
   const cartas = arcanos.map((arcano, i) =>
-    el('button', { class: 'carta-leque', type: 'button', 'aria-label': `Escolher a carta ${i + 1}` },
-      el('span', { class: 'carta-leque__dentro' }, el('img', { src: '/cartas/verso.svg', alt: '', draggable: 'false' }))));
+    el('button', { class: 'carta-leque', type: 'button', 'data-cursor': 'Escolher', 'aria-label': `Escolher a carta ${i + 1}` },
+      el('span', { class: 'carta-leque__dentro' },
+        el('img', { src: '/cartas/verso.svg', alt: '', draggable: 'false' }),
+        el('span', { class: 'carta-leque__brilho' }))));
   roda.append(...cartas);
   palco.append(leque);
 
   let raio = 0;
   let giro = 0;
   let escolhida = false;
+  let pronta = false;
   const limite = 75;
+  const dentros = cartas.map((c) => c.firstElementChild);
 
   /**
    * Geometria da referência: o topo do arco fica em ~60% da altura e as pontas saem pelos
@@ -29,9 +34,12 @@ export function montarLeque(palco, arcanos, aoEscolher, sinal) {
     const W = innerWidth;
     const H = innerHeight;
     const alturaCarta = cartas[0].offsetHeight;
-    const topo = W < 760 ? 0.56 : 0.6;
+    const deitado = W > H * 1.6 && H < 560; // celular deitado
+    const topo = deitado ? 0.5 : W < 760 ? 0.68 : 0.6;
     const abaixo = H * (1 - topo);
-    const externo = Math.max(((W / 2) ** 2 + abaixo ** 2) / (2 * abaixo), alturaCarta * 2.7);
+    // em telas verticais o arco fica mais largo que a tela, para as pontas saírem pelas laterais
+    const minimoRetrato = H > W ? W * 0.95 : 0;
+    const externo = Math.max(((W / 2) ** 2 + abaixo ** 2) / (2 * abaixo), alturaCarta * 2.7, minimoRetrato);
     raio = externo - alturaCarta;
     leque.style.setProperty('--centro-y', `${topo * H + externo - H}px`);
     cartas.forEach((c, i) => {
@@ -41,31 +49,45 @@ export function montarLeque(palco, arcanos, aoEscolher, sinal) {
   }
   dispor();
   addEventListener('resize', dispor, { signal: sinal });
+  gsap.set(dentros, { transformOrigin: '50% 100%' });
 
   const girar = (graus) => {
     giro = Math.max(-limite, Math.min(limite, graus));
-    gsap.to(roda, { rotation: giro, duration: 0.6, ease: 'power3.out', overwrite: 'auto' });
+    gsap.to(roda, { rotation: giro, duration: 0.7, ease: 'power3.out', overwrite: 'auto' });
   };
 
-  // hover (só mouse)
-  cartas.forEach((c) => {
-    const dentro = c.firstElementChild;
+  // ---- hover: sobe, brilha e afasta as vizinhas ----
+  const realcar = (indice) => {
+    dentros.forEach((d, i) => {
+      const dist = i - indice;
+      const longe = Math.abs(dist);
+      gsap.to(d, {
+        y: dist === 0 ? -34 : 0,
+        rotation: dist === 0 || longe > 3 ? 0 : Math.sign(dist) * (4.2 - longe * 1.1),
+        duration: 0.55, ease: 'power3.out', overwrite: 'auto',
+      });
+    });
+    cartas.forEach((c, i) => c.classList.toggle('carta-leque--realce', i === indice));
+  };
+  const soltar = () => {
+    gsap.to(dentros, { y: 0, rotation: 0, duration: 0.7, ease: 'power3.out', overwrite: 'auto' });
+    cartas.forEach((c) => c.classList.remove('carta-leque--realce'));
+  };
+
+  cartas.forEach((c, i) => {
     c.addEventListener('pointerenter', (e) => {
-      if (e.pointerType !== 'mouse' || escolhida) return;
-      gsap.to(dentro, { y: -28, duration: 0.45, ease: 'power3.out' });
+      if (e.pointerType !== 'mouse' || escolhida || !pronta) return;
+      realcar(i);
     }, { signal: sinal });
-    c.addEventListener('pointerleave', () => {
-      if (escolhida) return;
-      gsap.to(dentro, { y: 0, duration: 0.6, ease: 'power3.out' });
-    }, { signal: sinal });
-    c.addEventListener('focus', () => !escolhida && gsap.to(dentro, { y: -28, duration: 0.3 }), { signal: sinal });
-    c.addEventListener('blur', () => !escolhida && gsap.to(dentro, { y: 0, duration: 0.3 }), { signal: sinal });
+    c.addEventListener('focus', () => !escolhida && realcar(i), { signal: sinal });
     c.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); escolher(c); }
     }, { signal: sinal });
   });
+  leque.addEventListener('pointerleave', () => !escolhida && soltar(), { signal: sinal });
+  leque.addEventListener('focusout', (e) => { if (!leque.contains(e.relatedTarget) && !escolhida) soltar(); }, { signal: sinal });
 
-  // arrastar / tocar
+  // ---- arrastar / tocar ----
   let inicio = null;
   let giroInicial = 0;
   let arrastando = false;
@@ -90,26 +112,35 @@ export function montarLeque(palco, arcanos, aoEscolher, sinal) {
     inicio = null;
     if (alvo && valeComoClique) escolher(alvo);
   }, { signal: sinal });
-  // evita rolar a página enquanto gira o leque no celular
   leque.style.touchAction = 'pan-y';
 
+  // ---- respiração: o leque oscila de leve enquanto espera ----
+  const respiracao = gsap.to(respiro, { rotation: 1.6, duration: 4.5, ease: 'sine.inOut', yoyo: true, repeat: -1, paused: true });
+
   function escolher(carta) {
-    if (escolhida) return;
+    if (escolhida || !pronta) return;
     escolhida = true;
-    const indice = cartas.indexOf(carta);
-    aoEscolher(arcanos[indice], carta, cartas);
+    respiracao.pause();
+    soltar();
+    aoEscolher(arcanos[cartas.indexOf(carta)], carta, cartas);
   }
 
   return {
+    /** O baralho surge empilhado no centro e se abre em leque. */
     entrar() {
-      return gsap.from(cartas, {
-        y: (i) => posicaoNoLeque(i, cartas.length, raio).y + innerHeight * 0.6,
-        rotation: 0,
-        opacity: 0,
-        duration: 1.6,
-        ease: 'expo.out',
-        stagger: { each: 0.035, from: 'center' },
-      });
+      const meio = (cartas.length - 1) / 2;
+      const tl = gsap.timeline({ onComplete: () => { pronta = true; respiracao.play(); } });
+      tl.from(cartas, {
+        x: (i) => (i - meio) * 0.6,
+        y: -raio * 0.62,
+        rotation: (i) => (i - meio) * 0.4,
+        duration: 1.9,
+        ease: 'expo.inOut',
+        stagger: { each: 0.025, from: 'center' },
+      })
+        .from(dentros, { opacity: 0, scale: 0.85, duration: 0.6, ease: 'power2.out', stagger: { each: 0.01, from: 'center' } }, 0);
+      return tl;
     },
+    pular() { pronta = true; respiracao.play(); },
   };
 }
