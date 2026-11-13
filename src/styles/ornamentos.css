@@ -70,13 +70,11 @@
 
 /* ---------- Marca ---------- */
 .marca { display: inline-flex; flex-direction: column; align-items: center; color: var(--creme); }
-.marca__nome { font-family: var(--fonte-titulo); letter-spacing: 0.08em; line-height: 0.9; }
+.marca__nome { font-family: var(--fonte-display); font-weight: 800; letter-spacing: -0.01em; line-height: 0.9; }
 .marca__selo { display: flex; align-items: center; gap: 10px; color: var(--ouro); width: 100%; margin-top: 0.15em; }
 .marca__selo svg { width: 0.32em; height: 0.32em; min-width: 12px; min-height: 12px; }
 .marca__linha { flex: 1; height: 1px; background: currentColor; opacity: 0.7; }
-.marca--pequena { font-size: 28px; }
-.marca--hero { font-size: clamp(44px, 12.6vw, 200px); }
-.marca--hero .marca__nome { letter-spacing: 0.04em; }
+.marca--pequena { font-size: 24px; }
 
 /* ---------- Rodapé ---------- */
 .rodape { border-top: 1px solid var(--ouro-fraco); padding: 64px 0 40px; text-align: center; background: var(--fundo); position: relative; z-index: 2; }

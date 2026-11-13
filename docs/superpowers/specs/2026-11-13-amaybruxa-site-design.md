@@ -52,6 +52,13 @@ Escolhida pelo responsável: **1**. Motivo: cumpre o objetivo sem custo fixo e c
 
 ## 5. Direção de arte (decidida: "a mistura")
 
+> **Atualização (13/11/2026, decisão do responsável):** o site deve ficar **o mais idêntico possível** ao Arcanamana em layout, proporções, tipografia e animações. Só as cores seguem a paleta vinho e dourado.
+> - O nome AMAYBRUXA usa uma fonte **larga e pesada**, no estilo do logotipo ARCANAMANA: Unbounded 800, do Google Fonts. Ele entra em fatias horizontais, como na referência.
+> - Os títulos grandes (ex.: o nome da carta no resultado) usam a mesma fonte larga.
+> - Rótulos e texto corrido dos cards usam Geist Mono, como na referência.
+> - Os números romanos e os rótulos pequenos em serifa usam Bellefair.
+> - As seções de venda (que não existem na referência) seguem o mesmo sistema visual.
+
 Estrutura, animações e tipografia do Arcanamana, com a paleta da Amay.
 
 **Paleta** (os valores exatos ficam a cargo de quem constrói, dentro deste espírito):

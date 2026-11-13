@@ -1,54 +1,85 @@
 import { gsap } from 'gsap';
 import { ARCANOS } from '../data/arcanos.js';
 import { embaralhar } from '../lib/embaralhar.js';
-import { el, botao, marca } from '../lib/ornamentos.js';
+import { el, botao } from '../lib/ornamentos.js';
+import { barraBase } from './barra-base.js';
 
 const reduzMovimento = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const FATIAS = 5;
 
-function coluna(cartas, lado) {
-  const trilho = el('div', { class: 'hero__trilho' },
-    // duas cópias seguidas para o loop não ter emenda
-    [...cartas, ...cartas].map((a) =>
-      el('img', { class: 'hero__carta', src: a.imagem, alt: '', loading: 'lazy', decoding: 'async', width: 600, height: 1036 })));
-  return el('div', { class: `hero__coluna hero__coluna--${lado}` }, trilho);
+/** Colunas fixas como na referência: 2 à esquerda, 3 à direita, as das pontas cortadas pela borda. */
+const COLUNAS = [
+  { classe: 'c1', desloc: -38 },
+  { classe: 'c2', desloc: 4 },
+  { classe: 'c3', desloc: -12 },
+  { classe: 'c4', desloc: 22 },
+  { classe: 'c5', desloc: -30 },
+];
+
+function wordmark() {
+  // o nome é desenhado em N camadas; cada uma mostra uma faixa horizontal (entrada em fatias)
+  const camadas = Array.from({ length: FATIAS }, (_, i) =>
+    el('span', {
+      class: 'wordmark__fatia',
+      'aria-hidden': 'true',
+      style: `clip-path: inset(${(i * 100) / FATIAS}% 0 ${100 - ((i + 1) * 100) / FATIAS}% 0)`,
+    }, 'AMAYBRUXA'));
+  return el('h1', { class: 'wordmark' }, el('span', { class: 'sr-only' }, 'AMAYBRUXA'), el('span', { class: 'wordmark__medida', 'aria-hidden': 'true' }, 'AMAYBRUXA'), camadas);
+}
+
+/** Ajusta o tamanho da fonte para o nome ocupar exatamente a largura alvo. */
+function ajustar(wm) {
+  const medida = wm.querySelector('.wordmark__medida');
+  wm.style.fontSize = '100px';
+  const largura = medida.getBoundingClientRect().width || 1;
+  const alvo = wm.parentElement.clientWidth * (innerWidth < 760 ? 0.92 : 0.84);
+  wm.style.fontSize = `${(100 * alvo) / largura}px`;
 }
 
 export function montarHero(raiz) {
   const ordem = embaralhar(ARCANOS);
-  const colunas = [0, 1, 2, 3].map((i) =>
-    coluna(ordem.filter((_, n) => n % 4 === i), i < 2 ? 'esq' : 'dir'));
+  const colunas = COLUNAS.map((c, i) =>
+    el('div', { class: `hero__coluna hero__coluna--${c.classe}`, style: `--desloc:${c.desloc}%` },
+      ordem.slice(i * 4, i * 4 + 4).map((a) =>
+        el('div', { class: 'hero__carta' },
+          el('img', { src: a.imagem, alt: '', decoding: 'async', width: 600, height: 1036 })))));
 
-  const marcaHero = marca('hero');
-  const acoes = el('div', { class: 'hero__acoes' },
-    botao({ texto: 'Tirar minha carta', href: '/tirar-carta.html' }),
-    botao({ texto: 'Conhecer as leituras', href: '#leituras', variante: 'secundario' }));
-
-  const hero = el('section', { class: 'hero', 'aria-label': 'AMAYBRUXA' },
+  const wm = wordmark();
+  const hero = el('section', { class: 'hero' },
     el('div', { class: 'hero__colunas', 'aria-hidden': 'true' }, colunas),
-    el('div', { class: 'hero__veu', 'aria-hidden': 'true' }),
-    el('h1', { class: 'hero__marca' }, marcaHero),
-    el('div', { class: 'hero__centro' },
-      el('p', { class: 'hero__chamada rotulo' }, 'Tarô · Oráculos · Magia'),
-      acoes),
-    el('div', { class: 'hero__base rotulo' },
+    el('div', { class: 'hero__palco' }, wm),
+    el('div', { class: 'hero__acoes' },
+      botao({ texto: 'Tirar minha carta', href: '/tirar-carta.html' }),
+      botao({ texto: 'Conhecer as leituras', href: '#leituras' })),
+    barraBase([
+      el('a', { href: '#como-funciona' }, 'Como funciona'),
       el('a', { href: 'https://instagram.com/_amaybruxa', target: '_blank', rel: 'noopener noreferrer' }, '@_amaybruxa'),
-      el('a', { href: '#como-funciona', class: 'hero__rolar' }, 'Role para descobrir ↓')));
+    ]));
 
   raiz.append(hero);
+  const reajustar = () => ajustar(wm);
+  document.fonts.ready.then(reajustar);
+  reajustar();
+  addEventListener('resize', reajustar);
 
   if (reduzMovimento()) return;
 
-  colunas.forEach((c, i) => {
-    const sobe = i % 2 === 0;
-    gsap.fromTo(c.firstElementChild,
-      { yPercent: sobe ? 0 : -50 },
-      { yPercent: sobe ? -50 : 0, duration: 60 + i * 6, ease: 'none', repeat: -1 });
-  });
+  const cartas = hero.querySelectorAll('.hero__carta');
+  gsap.timeline({ defaults: { ease: 'expo.out' } })
+    .from(cartas, { yPercent: 40, opacity: 0, duration: 1.6, stagger: { each: 0.05, from: 'random' } })
+    .from(wm.querySelectorAll('.wordmark__fatia'), {
+      xPercent: (i) => (i % 2 ? 18 : -18), opacity: 0, duration: 1.4, stagger: 0.08,
+    }, 0.5)
+    .from('.hero__acoes .botao', { opacity: 0, y: 16, duration: 1, stagger: 0.12 }, 1.2)
+    .from('.barra-base', { opacity: 0, duration: 1 }, 1.4);
 
-  gsap.timeline({ defaults: { ease: 'power3.out' } })
-    .from('.hero__colunas', { opacity: 0, duration: 1.6 })
-    .from(marcaHero.querySelector('.marca__nome'), { yPercent: 40, opacity: 0, duration: 1.4 }, 0.2)
-    .from(marcaHero.querySelector('.marca__selo'), { scaleX: 0, opacity: 0, duration: 1.2 }, 0.7)
-    .from('.hero__centro > *', { y: 20, opacity: 0, duration: 1, stagger: 0.15 }, 0.9)
-    .from('.hero__base', { opacity: 0, duration: 1 }, 1.3);
+  // leve paralaxe das colunas com o mouse
+  if (matchMedia('(pointer: fine)').matches) {
+    const movers = [...hero.querySelectorAll('.hero__coluna')].map((c, i) =>
+      gsap.quickTo(c, 'y', { duration: 1.2, ease: 'power3.out' }));
+    hero.addEventListener('pointermove', (e) => {
+      const dy = e.clientY / innerHeight - 0.5;
+      movers.forEach((mover, i) => mover(dy * (i % 2 ? 24 : -24)));
+    });
+  }
 }
