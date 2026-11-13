@@ -4,6 +4,7 @@
     "preco e precoDe usam ponto decimal: 77.77 (não 77,77).",
     "validoAte (opcional) = último dia em que o item aparece, no formato AAAA-MM-DD. Depois disso ele some sozinho.",
     "tipo: consulta-pergunta | consulta-tempo | metodo | magia | destaque.",
+    "arte (opcional): número do Arcano Maior (0 a 21) que ilustra o painel no carrossel. Ex.: 6 = Os Enamorados, 19 = O Sol.",
     "contato.whatsapp: só números, com 55 + DDD. Ex.: 5511987654321. Se ficar vazio, os botões levam ao Instagram."
   ],
   "contato": {
@@ -21,6 +22,7 @@
 
     {
       "id": "grimorio-dos-amantes",
+      "arte": 6,
       "tipo": "metodo",
       "nome": "Grimório dos Amantes",
       "subtitulo": "Método de tiragem autoral",
@@ -36,6 +38,7 @@
     },
     {
       "id": "alem-do-invisivel",
+      "arte": 2,
       "tipo": "metodo",
       "nome": "Além do Invisível",
       "subtitulo": "Método de tiragem",
@@ -52,6 +55,7 @@
     },
     {
       "id": "meu-ex-amor",
+      "arte": 18,
       "tipo": "metodo",
       "nome": "Tudo sobre Meu Ex Amor",
       "subtitulo": "Método de tiragem",
@@ -68,6 +72,7 @@
     },
     {
       "id": "caminhos-do-ouro",
+      "arte": 10,
       "tipo": "metodo",
       "nome": "Caminhos do Ouro",
       "subtitulo": "Método de tiragem",
@@ -83,6 +88,7 @@
     },
     {
       "id": "quatro-chaves",
+      "arte": 21,
       "tipo": "metodo",
       "nome": "As Quatro Chaves do Destino",
       "subtitulo": "Método de tiragem",
@@ -98,6 +104,7 @@
 
     {
       "id": "mapa-oracular-2027",
+      "arte": 19,
       "tipo": "destaque",
       "nome": "Mapa Oracular de 2027",
       "subtitulo": "Tarô e Baralho Cigano",
@@ -114,6 +121,7 @@
 
     {
       "id": "consulta-magias",
+      "arte": 14,
       "tipo": "magia",
       "nome": "Consulta para Magias",
       "subtitulo": "Obrigatória antes de qualquer magia",
@@ -128,6 +136,7 @@
     },
     {
       "id": "novembro-prosperidade",
+      "arte": 4,
       "tipo": "magia",
       "nome": "Novembro de Prosperidade",
       "subtitulo": "Promoção exclusiva de novembro",
@@ -139,6 +148,7 @@
     },
     {
       "id": "glamour-magnetismo",
+      "arte": 3,
       "tipo": "magia",
       "nome": "Glamour e Magnetismo",
       "subtitulo": "Promoção exclusiva de novembro",
