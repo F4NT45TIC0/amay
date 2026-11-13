@@ -18,8 +18,6 @@ iniciarCinema({ poeira: true });
 const app = document.getElementById('app');
 const reduz = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 const dadosPromessa = carregarOfertas();
-const PROPORCAO = 600 / 1036; // largura / altura das cartas
-const POSICAO_ARTE = 0.3; // enquadramento vertical da arte em tela cheia (0 = topo)
 
 const FRASES = ['O universo está falando.', 'Sinta a energia das cartas e escolha a que chama por você.'];
 const imagemGrande = (arcano) => arcano.imagem.replace('/cartas/', '/cartas/g/');
@@ -49,62 +47,49 @@ async function maquinaDeEscrever(alvo, sinal) {
   }
 }
 
-/** Onde a arte fica quando cobre a tela inteira (mesma conta de um background-size: cover). */
-function enquadramentoCheio() {
-  const W = innerWidth;
-  const H = innerHeight;
-  const largura = Math.max(W, H * PROPORCAO);
-  const altura = largura / PROPORCAO;
-  return { largura, altura, centroX: W / 2, centroY: (H - altura) * POSICAO_ARTE + altura / 2 };
+function arteDoArcano(arcano) {
+  return el('img', {
+    src: imagemGrande(arcano),
+    style: `--foco: ${arcano.foco}%; --altura-do-foco: ${arcano.foco}cqh`,
+    alt: arcano.nome,
+  });
 }
 
 /**
  * A sequência da referência, calma e cerimonial:
  * a carta sobe do leque → o leque afunda e o fundo se acende → ela desliza até o centro,
- * ainda de costas, e fica em suspense → vira → cresce até a arte ocupar a tela inteira.
+ * ainda de costas, e fica em suspense → vira → se abre até as bordas da faixa de revelação.
  */
-function revelar({ arcano, cartaEl, cartas, palco, texto }) {
+function revelar({ arcano, cartaEl, cartas, palco, texto, revelacao }) {
   const dentro = cartaEl.firstElementChild;
   const rect = dentro.getBoundingClientRect();
   const roda = cartaEl.parentElement;
   const giroTotal = gsap.getProperty(roda, 'rotation') + gsap.getProperty(roda.parentElement, 'rotation')
     + gsap.getProperty(cartaEl, 'rotation') + gsap.getProperty(dentro, 'rotation');
 
-  const frente = el('img', { src: arcano.imagem, alt: arcano.nome });
+  const frente = arteDoArcano(arcano);
   const voo = el('div', { class: 'voo' },
     el('div', { class: 'voo__halo' }),
     el('div', { class: 'voo__dentro' },
       el('img', { class: 'voo__face voo__face--verso', src: '/cartas/verso.svg', alt: '' }),
       el('div', { class: 'voo__face voo__face--frente' }, frente, el('span', { class: 'voo__brilho' }))));
   palco.append(voo);
-  // a arte em alta resolução carrega durante o voo, para a ampliação final sair nítida
-  const grande = new Image();
-  grande.src = imagemGrande(arcano);
-  grande.decode?.().then(() => { frente.src = grande.src; }).catch(() => {});
-
   const W = innerWidth;
   const H = innerHeight;
   const larguraCarta = cartaEl.offsetWidth;
   const alturaCarta = cartaEl.offsetHeight;
-  const largAlvo = Math.min(W * 0.66, H * 0.6 * PROPORCAO);
+  const larguraSuspensa = Math.min(W * 0.48, H * 0.44 * (300 / 518), 222);
+  const alturaSuspensa = larguraSuspensa * (518 / 300);
   const rad = (giroTotal * Math.PI) / 180;
   const x0 = rect.left + rect.width / 2;
   const y0 = rect.top + rect.height / 2;
-  gsap.set(voo, { left: x0, top: y0, width: larguraCarta, xPercent: -50, yPercent: -50, rotation: giroTotal });
+  gsap.set(voo, { left: x0, top: y0, width: larguraCarta, height: alturaCarta, xPercent: -50, yPercent: -50, rotation: giroTotal });
   cartaEl.style.visibility = 'hidden';
 
   const pintura = palco.querySelector('.tirar__pintura');
   const vela = palco.querySelector('.tirar__vela');
   const sombra = palco.querySelector('.tirar__sombra');
-  const cheio = enquadramentoCheio();
   const tl = gsap.timeline();
-
-  if (reduz()) {
-    gsap.set(voo, { left: W / 2, top: H / 2, rotation: 0, width: largAlvo });
-    gsap.set(voo.querySelector('.voo__dentro'), { rotationY: 180 });
-    gsap.set([cartas, texto], { opacity: 0 });
-    return tl.to({}, { duration: 0.6 });
-  }
 
   const indice = cartas.indexOf(cartaEl);
   const sobe = alturaCarta * 0.42; // sai do leque no próprio eixo
@@ -122,29 +107,32 @@ function revelar({ arcano, cartaEl, cartas, palco, texto }) {
     .to(vela, { opacity: 1, scale: 1.6, duration: 3.2, ease: 'power2.inOut' }, 0.8)
     .to(sombra, { opacity: 0.55, duration: 2.4, ease: 'power2.inOut' }, 0.8)
     // 3. desliza até o centro, ainda de costas
-    .to(voo, { left: W / 2, top: H / 2, rotation: 0, width: largAlvo, duration: 1.9, ease: 'expo.inOut' }, 1.05)
+    .to(voo, { left: W / 2, top: H / 2, rotation: 0, width: larguraSuspensa, height: alturaSuspensa, duration: 1.9, ease: 'expo.inOut' }, 1.05)
     // 4. suspense: paira um instante
     .to(voo, { top: H / 2 - 8, duration: 1.1, ease: 'sine.inOut', yoyo: true, repeat: 1 }, 2.95)
     // 5. vira
     .to(voo.querySelector('.voo__dentro'), { rotationY: 180, duration: 1.3, ease: 'power3.inOut' }, 4.4)
     .fromTo(voo.querySelector('.voo__brilho'), { xPercent: -160 }, { xPercent: 160, duration: 1.3, ease: 'power2.inOut' }, 4.9)
     .to({}, { duration: 0.9 })
-    // 6. cresce até a arte ocupar a tela inteira
+    // 6. termina na moldura real, já dimensionada para a tela atual
     .to(voo.querySelector('.voo__halo'), { opacity: 0, duration: 0.6 }, '>-0.1')
-    .to(voo, { left: cheio.centroX, top: cheio.centroY, width: cheio.largura, duration: 1.7, ease: 'expo.inOut' }, '<')
-    .to(voo.querySelectorAll('.voo__face'), { borderRadius: 0, duration: 1.2, ease: 'power2.in' }, '<')
-    .to(sombra, { opacity: 1, duration: 1.2 }, '<');
+    .to(voo, {
+      left: () => revelacao.clientWidth / 2,
+      top: () => revelacao.clientHeight / 2,
+      width: () => revelacao.clientWidth,
+      height: () => revelacao.clientHeight,
+      duration: 1.3, ease: 'power3.inOut',
+    }, '<')
+    .to(voo.querySelector('.voo__face--frente'), { borderRadius: 0, borderWidth: 0, duration: 1.3 }, '<');
 }
 
 function montarRevelacao(arcano) {
-  const arte = el('div', { class: 'revelacao__arte', style: `background-image:url(${imagemGrande(arcano)}), url(${arcano.imagem})` });
+  const arte = el('div', { class: 'revelacao__arte' }, arteDoArcano(arcano));
   const frame = moldura(el('div', { class: 'revelacao__rotulos' },
     el('span', { class: 'revelacao__num' }, arcano.romano),
-    el('span', { class: 'revelacao__nome' }, arcano.nome)), 'revelacao__moldura');
-  return el('section', { class: 'revelacao' },
+    el('h1', { class: 'revelacao__nome' }, arcano.nome)), 'revelacao__moldura');
+  return el('section', { class: 'revelacao', 'aria-hidden': 'true' },
     arte,
-    el('div', { class: 'revelacao__veu' }),
-    el('p', { class: 'revelacao__frase' }, arcano.frase),
     frame,
     el('p', { class: 'revelacao__dica rotulo' }, 'Role para ler a sua carta ↓'));
 }
@@ -172,22 +160,24 @@ async function iniciar() {
 
   const embaralhadas = embaralhar(ARCANOS);
   const leque = montarLeque(palco, embaralhadas, async (arcano, cartaEl, cartas) => {
-    await revelar({ arcano, cartaEl, cartas, palco, texto });
+    // O palco fixo cobre a revelação até a carta chegar ao seu quadro definitivo.
+    const revelacao = montarRevelacao(arcano);
+    app.prepend(revelacao);
+    if (!reduz()) await revelar({ arcano, cartaEl, cartas, palco, texto, revelacao });
     if (sinal.aborted) return;
-    await mostrarResultado(arcano, palco, sinal);
+    await mostrarResultado(arcano, palco, revelacao, sinal);
   }, sinal);
 
   if (reduz()) leque.pular(); else leque.entrar();
   maquinaDeEscrever(texto, sinal);
 }
 
-async function mostrarResultado(arcano, palco, sinal) {
+async function mostrarResultado(arcano, palco, revelacao, sinal) {
   const dados = await dadosPromessa;
   if (sinal.aborted) return;
   const contato = dados?.contato ?? CONTATO_PADRAO;
   const metodo = filtrarAtivas(dados?.itens ?? [], hojeLocal()).find((i) => i.id === arcano.metodo) ?? null;
 
-  const revelacao = montarRevelacao(arcano);
   const corpo = el('div', { class: 'resultado-area' });
   const acoes = montarResultado(corpo, arcano, metodo, contato);
 
@@ -198,39 +188,28 @@ async function mostrarResultado(arcano, palco, sinal) {
     salvarCarta(arcano);
   }, { signal: sinal });
 
-  // a arte da revelação está exatamente onde a carta ampliada terminou: a troca não se vê
-  app.replaceChildren(revelacao, corpo, rodape(contato));
-  document.querySelectorAll('.voo').forEach((v) => v.remove());
+  palco.remove();
+  revelacao.removeAttribute('aria-hidden');
+  app.append(corpo, rodape(contato));
   document.body.classList.remove('travado');
   rolagem.continuar();
   rolagem.topo();
   ScrollTrigger.refresh();
 
   if (reduz()) return;
-  const arte = revelacao.querySelector('.revelacao__arte');
   gsap.timeline()
-    .from(revelacao.querySelector('.revelacao__veu'), { opacity: 0, duration: 1.6, ease: 'power2.out' }, 0)
+    .fromTo(revelacao.querySelector('.revelacao__arte'), { '--veu': 0 }, { '--veu': 1, duration: 0.95, ease: 'power2.out' }, 0)
     .fromTo(revelacao.querySelector('.revelacao__moldura'),
       { clipPath: 'inset(-30px 50% -30px 50%)' },
       { clipPath: 'inset(-30px -30px -30px -30px)', duration: 1.8, ease: 'expo.inOut' }, 0.1)
-    .from(revelacao.querySelectorAll('.revelacao__rotulos > *'), { opacity: 0, y: 12, stagger: 0.18, duration: 0.9 }, 1.1)
-    .from(revelacao.querySelector('.revelacao__dica'), { opacity: 0, duration: 0.9 }, 1.8);
+    .from(revelacao.querySelectorAll('.revelacao__rotulos > *'), { opacity: 0, y: 10, stagger: 0.12, duration: 0.8 }, 0.35)
+    .from(revelacao.querySelector('.revelacao__dica'), { opacity: 0, duration: 0.8 }, 0.75);
 
-  // ao rolar: a arte se aproxima devagar e escurece, a frase surge, o cartão sobe por cima
-  gsap.to(arte, {
-    scale: 1.14, yPercent: 4, ease: 'none',
-    scrollTrigger: { trigger: revelacao, start: 'top top', end: 'bottom top', scrub: true },
+  corpo.querySelectorAll('.resultado, .ponte').forEach((alvo) => {
+    if (alvo.getBoundingClientRect().top >= innerHeight) {
+      gsap.from(alvo, { y: 40, opacity: 0, duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: alvo, start: 'top 95%', once: true } });
+    }
   });
-  gsap.to(revelacao.querySelector('.revelacao__veu'), {
-    backgroundColor: 'rgba(18, 7, 9, 0.6)', ease: 'none',
-    scrollTrigger: { trigger: revelacao, start: 'top top', end: 'bottom top', scrub: true },
-  });
-  gsap.fromTo(revelacao.querySelector('.revelacao__frase'), { opacity: 0, y: 30 }, {
-    opacity: 1, y: 0, ease: 'none',
-    scrollTrigger: { trigger: revelacao, start: 'top+=8% top', end: 'top+=36% top', scrub: true },
-  });
-  corpo.querySelectorAll('.resultado, .ponte').forEach((alvo) =>
-    gsap.from(alvo, { y: 80, opacity: 0, duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: alvo, start: 'top 90%', once: true } }));
 }
 
 iniciar();

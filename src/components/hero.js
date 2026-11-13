@@ -6,49 +6,40 @@ import { barraBase } from './barra-base.js';
 import { gradeDoHero } from '../lib/hero-grade.js';
 
 const reduzMovimento = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const FATIAS = 5;
 
 function wordmark() {
-  // o nome é desenhado em N camadas; cada uma mostra uma faixa horizontal (entrada em fatias)
-  const camadas = Array.from({ length: FATIAS }, (_, i) =>
-    el('span', {
-      class: 'wordmark__fatia',
-      'aria-hidden': 'true',
-      style: `clip-path: inset(${(i * 100) / FATIAS}% 0 ${100 - ((i + 1) * 100) / FATIAS}% 0)`,
-    }, 'AMAYBRUXA'));
-  return el('h1', { class: 'wordmark' }, el('span', { class: 'sr-only' }, 'AMAYBRUXA'), el('span', { class: 'wordmark__medida', 'aria-hidden': 'true' }, 'AMAYBRUXA'), camadas);
-}
-
-/**
- * O logotipo da referência é uma fonte condensada esticada na horizontal (proporção ~5,7:1).
- * Aqui: a altura define o tamanho da fonte e um scaleX estica o nome até a largura alvo.
- */
-const PROPORCAO = 5.7;
-function ajustar(wm) {
-  const medida = wm.querySelector('.wordmark__medida');
-  wm.style.transform = 'none';
-  wm.style.fontSize = '100px';
-  const natural = medida.getBoundingClientRect().width || 1;
-  const alvo = wm.parentElement.clientWidth * (innerWidth < 760 ? 0.9 : 0.82);
-  const tamanho = alvo / PROPORCAO / 0.8; // 0.8 = line-height do wordmark
-  wm.style.fontSize = `${tamanho}px`;
-  wm.style.transform = `scaleX(${alvo / (natural * (tamanho / 100))})`;
+  // cada letra fica numa "janela" própria: ela sobe de trás da máscara ao entrar
+  const letras = [...'AMAYBRUXA'].map((l) => el('span', { class: 'wordmark__letra' }, el('span', {}, l)));
+  return el('h1', { class: 'wordmark' },
+    el('span', { class: 'sr-only' }, 'AMAYBRUXA'),
+    el('span', { class: 'wordmark__medida', 'aria-hidden': 'true' }, letras));
 }
 
 export function montarHero(raiz) {
   const ordem = embaralhar(ARCANOS);
   const palcoCartas = el('div', { class: 'hero__colunas', 'aria-hidden': 'true' });
-  let cartas = [];
+  // O verso fica visível por um instante depois de a cortina de entrada abrir.
+  const abertura = document.readyState === 'complete' ? Promise.resolve()
+    : new Promise((ok) => window.addEventListener('load', ok, { once: true }));
 
   /** (Re)monta as cartas na grade em xadrez da referência. */
-  function dispor() {
+  function dispor(animar = false) {
     const grade = gradeDoHero(innerWidth, Math.max(innerHeight, palcoCartas.clientHeight || 0));
-    cartas = grade.map((g, i) => {
+    const cartas = grade.map((g, i) => {
       const a = ordem[i % ordem.length];
+      const frente = el('img', { class: 'hero__frente', src: a.imagem, alt: '', decoding: 'async', width: 600, height: 1036 });
+      const giro = el('div', {
+        class: 'hero__giro',
+        style: animar ? `--duracao: 0.95s; --atraso: ${1.25 + i * 0.065}s` : null,
+      }, frente);
+      // Uma frente que ainda está carregando (ou indisponível) continua mostrando o verso.
+      (animar ? Promise.all([abertura, frente.decode()]) : frente.decode()).then(() => {
+        giro.classList.add('hero__giro--aberto');
+      }).catch(() => {});
       return el('div', {
         class: 'hero__carta', 'data-coluna': g.coluna,
         style: `left:${g.x}px;top:${g.y}px;width:${g.largura}px;height:${g.altura}px`,
-      }, el('img', { src: a.imagem, alt: '', decoding: 'async', width: 600, height: 1036 }));
+      }, giro);
     });
     palcoCartas.replaceChildren(...cartas);
   }
@@ -66,26 +57,23 @@ export function montarHero(raiz) {
     ]));
 
   raiz.append(hero);
-  dispor();
-  const reajustar = () => ajustar(wm);
-  document.fonts.ready.then(reajustar);
-  reajustar();
+  dispor(!reduzMovimento());
   let larguraAnterior = innerWidth;
   addEventListener('resize', () => {
-    reajustar();
     // no celular a barra de endereço muda a altura ao rolar: só refaz a grade se a largura mudar
     if (innerWidth !== larguraAnterior) { larguraAnterior = innerWidth; dispor(); }
   });
 
   if (reduzMovimento()) return;
 
-  gsap.timeline({ defaults: { ease: 'expo.out' } })
-    .from(cartas, { y: 60, opacity: 0, duration: 1.8, stagger: { each: 0.06, from: 'random' } })
-    .from(wm.querySelectorAll('.wordmark__fatia'), {
-      xPercent: (i) => (i % 2 ? 18 : -18), opacity: 0, duration: 1.4, stagger: 0.08,
-    }, 0.5)
-    .from('.hero__acoes .botao', { opacity: 0, y: 16, duration: 1, stagger: 0.12 }, 1.2)
-    .from('.barra-base', { opacity: 0, duration: 1 }, 1.4);
+  const letras = wm.querySelectorAll('.wordmark__letra > span');
+
+  gsap.timeline()
+    // o nome: cada letra sobe de trás da máscara, chega dourada e esfria para o creme
+    .from(letras, { yPercent: 115, duration: 1.5, ease: 'expo.out', stagger: 0.07 }, 0.5)
+    .fromTo(letras, { color: '#e6c98e' }, { color: '#f5efe4', duration: 1.6, ease: 'power2.out', stagger: 0.07 }, 0.9)
+    .from('.hero__acoes .botao', { opacity: 0, y: 16, duration: 1.1, ease: 'power3.out', stagger: 0.14 }, 1.7)
+    .from('.barra-base', { opacity: 0, duration: 1.2 }, 1.9);
 
   // leve paralaxe com o mouse: colunas vizinhas se movem em sentidos opostos
   if (matchMedia('(pointer: fine)').matches) {

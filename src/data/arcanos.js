@@ -137,6 +137,9 @@ const dados = [
     'Celebre o fim desta jornada. A próxima já está te esperando.'],
 ];
 
+// Posição vertical do rosto (ou do símbolo principal) em cada ilustração, em %.
+const focos = [22, 26, 32, 24, 23, 26, 18, 22, 28, 16, 49, 27, 74, 21, 17, 20, 25, 37, 20, 20, 16, 31];
+
 export const ARCANOS = dados.map(([romano, nome, slug, metodo, frase, amor, trabalho, espiritualidade, conselho], numero) => ({
   numero,
   romano,
@@ -144,6 +147,7 @@ export const ARCANOS = dados.map(([romano, nome, slug, metodo, frase, amor, trab
   slug,
   metodo,
   imagem: `/cartas/${String(numero).padStart(2, '0')}.webp`,
+  foco: focos[numero],
   frase,
   amor,
   trabalho,

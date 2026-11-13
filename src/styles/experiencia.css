@@ -81,32 +81,71 @@
 .jornada--livre .parada, .jornada--livre .jornada__abertura { scroll-snap-align: center; }
 .jornada--livre .jornada__progresso { display: none; }
 
-/* ================= O ritual: acender a vela ================= */
+/* ================= O ritual: acenda a sua luz ================= */
 .ritual { position: relative; background: var(--fundo); }
-.ritual__cena { position: relative; height: 100svh; min-height: 560px; overflow: hidden; isolation: isolate; display: grid; grid-template-rows: auto 1fr auto auto; justify-items: center; padding: clamp(40px, 8vh, 80px) var(--gutter) clamp(28px, 5vh, 54px); text-align: center; }
-.ritual__cena::before { content: ''; position: absolute; inset: 0; z-index: -3; background: radial-gradient(ellipse 60% 55% at 50% 48%, #3a0d14, #170709 72%); }
+.ritual__cena { position: relative; height: 100svh; min-height: 380px; overflow: hidden; isolation: isolate; background: var(--fundo); }
 
-.ritual__titulo { font-family: var(--fonte-display); font-weight: 400; text-transform: uppercase; font-size: clamp(60px, 12vw, 200px); line-height: 0.86; letter-spacing: 0.005em; color: var(--creme); position: relative; z-index: 3; text-shadow: 0 10px 50px rgba(0, 0, 0, 0.6); }
-.ritual__titulo--baixo { grid-row: 3; }
-.ritual__script { position: absolute; right: clamp(16px, 16vw, 300px); top: clamp(120px, 26vh, 250px); z-index: 3; font-family: var(--fonte-script); font-size: clamp(26px, 3.6vw, 52px); color: var(--ouro-claro); rotate: -5deg; }
-.ritual__latim { position: absolute; left: 0; right: 0; top: 36%; z-index: 3; font-size: 12px; letter-spacing: 0.3em; color: var(--ouro-claro); }
+/* a foto é ancorada pelo pavio: (49%, 66%) da imagem fica no ponto (--px, --py) da tela */
+.ritual__foto {
+  --luz: 1;
+  position: absolute; left: var(--px, 72%); top: var(--py, 65%);
+  height: min(84svh, 900px); aspect-ratio: 4 / 3;
+  transform: translate(-49%, -66%);
+  z-index: -1; pointer-events: none; mix-blend-mode: screen;
+  mask-image: radial-gradient(ellipse 47% 50% at 49% 50%, #000 42%, transparent 100%);
+}
+.ritual__camada { position: absolute; inset: 0; display: block; }
+.ritual__camada img { width: 100%; height: 100%; }
+/* A cera fica fixa. As duas máscaras se encontram suavemente no pavio. */
+.ritual__camada--apagada {
+  mask-image: linear-gradient(transparent 65%, #000 68%);
+  filter: brightness(calc(0.24 + 0.7 * var(--luz)));
+}
+.ritual__ignicao { position: absolute; inset: 0; transform-origin: 49% 66%; }
+.ritual__camada--acesa {
+  mask-image: linear-gradient(transparent 0%, #000 12%, #000 64.5%, transparent 68%);
+  transform-origin: 49% 66%;
+}
+.ritual__brilho {
+  position: absolute; left: 49%; top: 43%; width: 65%; aspect-ratio: 1; translate: -50% -50%;
+  background: radial-gradient(closest-side, rgba(255, 170, 70, 0.13), rgba(200, 90, 40, 0.05) 45%, transparent);
+  opacity: var(--luz);
+}
+@keyframes chama-tremula {
+  0%, 100% { transform: skewX(-1deg) scale(1, 0.99); }
+  18% { transform: skewX(2.8deg) scale(0.95, 1.045); }
+  35% { transform: skewX(0.6deg) scale(1.04, 0.965); }
+  53% { transform: skewX(-3.2deg) scale(0.97, 1.025); }
+  72% { transform: skewX(1.4deg) scale(1.035, 0.95); }
+  88% { transform: skewX(-1.8deg) scale(0.98, 1.035); }
+}
+@keyframes halo-da-chama {
+  0%, 100% { transform: scale(0.94); }
+  42% { transform: scale(1.08); }
+  72% { transform: scale(0.99); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ritual--visivel .ritual__camada--acesa { animation: chama-tremula 1.8s ease-in-out infinite; }
+  .ritual--visivel .ritual__brilho { animation: halo-da-chama 2.3s ease-in-out infinite; }
+}
 
-.ritual__ponto { position: absolute; left: 50%; top: 47%; width: 0; height: 0; z-index: 4; --p: clamp(120px, 15vw, 220px); --t: clamp(280px, 44vw, 640px); }
-.ritual__ponto svg { max-width: none; }
-.ritual__apagada { position: absolute; width: var(--p); left: calc(var(--p) * -0.5); top: calc(var(--p) * -0.4067); overflow: visible; }
-.ritual__acesa { position: absolute; width: var(--t); left: calc(var(--t) * -0.7833); top: calc(var(--t) * -0.16); transform-origin: 78.33% 43.6%; overflow: visible; }
-.ritual__raios { position: absolute; width: 2800px; height: 2800px; left: -1400px; top: -1400px; z-index: -1; pointer-events: none; }
-.ritual__clarao { position: absolute; width: 60vmin; height: 60vmin; left: -30vmin; top: -30vmin; border-radius: 50%; z-index: -1; pointer-events: none; background: radial-gradient(closest-side, rgba(255, 236, 190, 0.95), rgba(255, 170, 80, 0.4) 30%, rgba(201, 164, 92, 0.12) 60%, transparent 75%); mix-blend-mode: screen; }
+.ritual__antes {
+  visibility: hidden;
+  position: absolute; left: 0; right: 0; top: 46%; padding-inline: var(--gutter); text-align: center;
+  font-family: var(--fonte-rotulo); font-size: 14px; line-height: 24px; color: var(--creme-2);
+}
 
-.ritual__fumaca { position: absolute; z-index: 5; width: 62vmax; height: 62vmax; border-radius: 50%; pointer-events: none; filter: blur(26px); }
-.ritual__fumaca--esq { left: -26vmax; bottom: -30vmax; background: radial-gradient(closest-side, rgba(143, 52, 70, 0.75), rgba(90, 21, 32, 0.5) 55%, transparent 72%); }
-.ritual__fumaca--dir { right: -28vmax; top: -30vmax; background: radial-gradient(closest-side, rgba(170, 96, 104, 0.6), rgba(90, 21, 32, 0.45) 55%, transparent 72%); }
-
-.ritual__chamada { grid-row: 4; position: relative; z-index: 6; display: grid; justify-items: center; gap: 6px; margin-top: 10px; }
-.ritual__texto { font-family: var(--fonte-rotulo); font-size: 13px; line-height: 22px; color: var(--creme-2); max-width: 46ch; }
-
-/* sem animação: a cena já aparece acesa */
-.ritual--aceso .ritual__acesa { display: none; }
+.ritual__conteudo {
+  position: absolute; left: clamp(20px, 7vw, 110px); top: 50%; translate: 0 -50%;
+  width: min(48vw, 640px); display: grid; gap: 16px; justify-items: start; z-index: 2;
+}
+.ritual__rotulo { color: var(--ouro); }
+.ritual__titulo { font-family: var(--fonte-display); font-weight: 400; text-transform: uppercase; font-size: clamp(64px, min(9.4vw, 15svh), 144px); line-height: 0.98; letter-spacing: 0.005em; color: var(--creme); }
+.ritual__linha { display: block; overflow: hidden; padding-top: 0.06em; margin-top: -0.06em; }
+.ritual__linha > span { display: inline-block; will-change: transform; }
+.ritual__subtitulo { font-family: var(--fonte-titulo); font-size: clamp(25px, 2.5vw, 38px); line-height: 1.18; color: var(--ouro-claro); }
+.ritual__chamada { display: grid; justify-items: start; gap: 6px; margin-top: 6px; }
+.ritual__texto { font-family: var(--fonte-rotulo); font-size: 13px; line-height: 22px; color: var(--creme-2); max-width: 44ch; }
 
 @media (max-width: 760px) {
   .parada, .parada--b { grid-template-columns: 1fr; width: 86vw; gap: 18px; align-content: center; transform: none; }
@@ -116,14 +155,24 @@
   .parada__topicos li:nth-child(n + 3) { display: none; }
   .jornada__abertura, .jornada__fecho { width: 90vw; }
   .jornada__frase { font-size: 19vw; }
-  .ritual__script { right: 8vw; top: 21vh; }
-  .ritual__ponto { top: 46%; --p: 30vw; --t: 74vw; }
-  .ritual__latim { top: 33%; }
+  .ritual__foto { --px: 50%; --py: 37%; height: 44svh; }
+  .ritual__conteudo { left: 0; right: 0; top: auto; bottom: clamp(26px, 6svh, 60px); translate: none; width: auto; padding-inline: var(--gutter); justify-items: center; text-align: center; gap: 10px; }
+  .ritual__titulo { font-size: min(17vw, 8svh); text-shadow: 0 4px 30px rgba(0, 0, 0, 0.9); }
+  .ritual__chamada { justify-items: center; min-width: 0; max-width: 100%; }
+  .ritual__chamada .botao { max-width: 100%; gap: 10px; }
+  .ritual__chamada .botao__texto { font-size: clamp(12px, 3.6vw, 15px); white-space: normal; }
+  .ritual__antes { top: 30%; }
 }
-@media (max-height: 520px) and (orientation: landscape) {
+@media (max-height: 700px) and (orientation: portrait) {
+  .ritual__foto { --py: 28%; height: 36svh; }
+  .ritual__conteudo { bottom: 20px; gap: 6px; }
+}
+@media (max-height: 560px) and (orientation: landscape) {
   .parada__arte img { height: 62svh; width: auto; }
   .parada__nome { font-size: clamp(30px, 5vw, 48px); }
   .parada__topicos { display: none; }
-  .ritual__titulo { font-size: 15vh; }
-  .ritual__ponto { --p: 14vw; --t: 40vw; }
+  .ritual__conteudo { left: var(--gutter); right: auto; top: 50%; bottom: auto; translate: 0 -50%; width: 52%; padding: 0; justify-items: start; text-align: left; gap: 6px; }
+  .ritual__chamada { justify-items: start; }
+  .ritual__titulo { font-size: min(8vw, 14svh); }
+  .ritual__foto { --px: 76%; --py: 65%; height: 82svh; }
 }

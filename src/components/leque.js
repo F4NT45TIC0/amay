@@ -139,25 +139,18 @@ export function montarLeque(palco, arcanos, aoEscolher, sinal) {
   }
 
   return {
-    /**
-     * Como na referência: primeiro surge a cúpula só em contornos dourados, abrindo-se do centro;
-     * depois os versos das cartas se preenchem.
-     */
+    /** O leque se abre a partir do centro, já com os versos à mostra. */
     entrar() {
       const meio = (cartas.length - 1) / 2;
-      const versos = dentros.map((d) => d.querySelector('img'));
       const tl = gsap.timeline({ onComplete: () => { pronta = true; respiracao.play(); } });
-      tl.set(versos, { opacity: 0 })
-        .from(cartas, {
-          rotation: (i) => (i - meio) * 0.3,
-          x: 0,
-          y: -raio,
-          duration: 2.2,
-          ease: 'expo.inOut',
-          stagger: { each: 0.02, from: 'center' },
-        }, 0)
-        .from(dentros, { opacity: 0, duration: 0.8, ease: 'power2.out', stagger: { each: 0.015, from: 'center' } }, 0)
-        .to(versos, { opacity: 1, duration: 1.4, ease: 'power2.inOut', stagger: { each: 0.03, from: 'center' } }, 1.5);
+      tl.from(cartas, {
+        rotation: (i) => (i - meio) * 0.3,
+        x: 0,
+        y: -raio,
+        duration: 2.2,
+        ease: 'expo.inOut',
+        stagger: { each: 0.02, from: 'center' },
+      });
       return tl;
     },
     pular() { pronta = true; respiracao.play(); },

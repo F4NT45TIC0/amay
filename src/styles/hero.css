@@ -10,15 +10,26 @@
 .hero__colunas { position: absolute; inset: 0; z-index: -1; }
 .hero__carta {
   position: absolute;
-  padding: 0.45%;
-  border: 1px solid var(--ouro);
+  perspective: 850px;
   border-radius: 10px;
-  background: var(--fundo-2);
   transition: translate 0.7s var(--ease), scale 0.7s var(--ease), box-shadow 0.7s var(--ease);
 }
-.hero__carta::after { content: ''; position: absolute; inset: 5px; border: 1px solid var(--ouro-fraco); border-radius: 6px; pointer-events: none; }
 .hero__carta:hover { translate: 0 -8px; scale: 1.03; box-shadow: 0 0 30px rgba(201, 164, 92, 0.35), 0 20px 40px rgba(0, 0, 0, 0.6); z-index: 1; }
-.hero__carta img { width: 100%; height: 100%; object-fit: cover; border-radius: 7px; filter: brightness(0.9) contrast(1.05); }
+.hero__giro { position: absolute; inset: 0; transform-style: preserve-3d; }
+.hero__giro--aberto { transform: rotateY(180deg); }
+.hero__giro::before, .hero__frente {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  border: 1px solid var(--ouro); border-radius: 10px;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+}
+.hero__giro::before { content: ''; background: var(--vinho) url(/cartas/verso.svg) center / cover; }
+.hero__frente {
+  transform: rotateY(180deg); object-fit: cover; padding: clamp(2px, 0.45vw, 8px);
+  background: var(--fundo-2); filter: brightness(0.9) contrast(1.05);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero__giro { transition: transform var(--duracao, 0s) var(--ease) var(--atraso, 0s); }
+}
 
 /* ---- wordmark ---- */
 .hero__palco { position: absolute; left: 0; right: 0; top: 17%; display: flex; justify-content: center; }
@@ -26,14 +37,15 @@
   position: relative;
   font-family: var(--fonte-display);
   font-weight: 400;
-  line-height: 0.8;
+  line-height: 1.16;
   letter-spacing: 0;
   color: var(--creme);
   white-space: nowrap;
-  font-size: 12vw;
+  font-size: min(12.5vw, 21svh, 11rem);
 }
-.wordmark__medida { visibility: hidden; display: inline-block; }
-.wordmark__fatia { position: absolute; inset: 0; display: block; will-change: transform, clip-path; }
+.wordmark__medida { display: flex; }
+.wordmark__letra { overflow: hidden; padding-block: 0.04em; }
+.wordmark__letra > span { display: block; }
 
 /* ---- botões ---- */
 .hero__acoes {
@@ -60,6 +72,7 @@
 
 @media (max-width: 760px) {
   .hero__palco { top: 24%; }
+  .wordmark { font-size: min(15.5vw, 21svh); }
   .hero__colunas::after {
     content: ''; position: absolute; inset: 0;
     background: linear-gradient(90deg, rgba(18,7,9,.25), rgba(18,7,9,.8) 30%, rgba(18,7,9,.8) 70%, rgba(18,7,9,.25));
