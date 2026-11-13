@@ -7,7 +7,41 @@
 }
 
 /* ---- cartas em xadrez (posições calculadas em src/lib/hero-grade.js) ---- */
-.hero__colunas { position: absolute; inset: 0; z-index: -1; }
+.hero__colunas {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 5%,
+    #000 84%,
+    transparent 98.5%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 5%,
+    #000 84%,
+    transparent 98.5%
+  );
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: clamp(72px, 13svh, 130px);
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(18, 7, 9, 0.55) 55%,
+    var(--fundo) 95%
+  );
+}
 .hero__carta {
   position: absolute;
   perspective: 850px;
@@ -32,7 +66,7 @@
 }
 
 /* ---- wordmark ---- */
-.hero__palco { position: absolute; left: 0; right: 0; top: 17%; display: flex; justify-content: center; }
+.hero__palco { position: absolute; left: 0; right: 0; top: 17%; display: flex; justify-content: center; z-index: 1; }
 .wordmark {
   position: relative;
   font-family: var(--fonte-display);
@@ -52,11 +86,12 @@
   position: absolute; left: 50%; top: 54%;
   transform: translate(-50%, -50%);
   display: flex; flex-direction: column; align-items: center; gap: 4px;
+  z-index: 1;
 }
 .hero__acoes .botao__texto { font-size: 16px; }
 
 /* ---- barra da base ---- */
-.hero .barra-base { position: absolute; left: 0; right: 0; bottom: 0; }
+.hero .barra-base { position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; }
 .barra-base { width: 100%; padding: 0 clamp(12px, 1.6vw, 20px) 14px; font-size: 11px; color: var(--creme); }
 .barra-base__linha { display: block; position: relative; height: 1px; background: var(--ouro-fraco); margin-bottom: 12px; }
 .barra-base__losango {
