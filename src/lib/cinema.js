@@ -193,5 +193,5 @@ export function iniciarCinema({ poeira = false } = {}) {
   montarCursor();
   montarRolagem();
   if (poeira) montarPoeira(document.body);
-  if (import.meta.env?.DEV) window.gsap = gsap; // só para inspeção local
+  if (import.meta.env?.DEV) { window.gsap = gsap; window.ScrollTrigger = ScrollTrigger; } // só para inspeção local
 }

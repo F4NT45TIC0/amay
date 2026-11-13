@@ -13,5 +13,6 @@ export function rodape(contato = {}) {
         el('a', { href: `https://instagram.com/${instagram}`, target: '_blank', rel: 'noopener noreferrer' }, `@${instagram}`)),
       el('p', { class: 'rodape__aviso' },
         'As leituras são orientação espiritual e não substituem acompanhamento médico, psicológico, jurídico ou financeiro.'),
+      el('span', { class: 'rodape__gigante', 'aria-hidden': 'true' }, el('span', {}, 'AMAYBRUXA')),
       el('p', { class: 'rodape__credito rotulo' }, `© ${new Date().getFullYear()} AMAYBRUXA · Cartas Rider–Waite (1909), domínio público`)));
 }

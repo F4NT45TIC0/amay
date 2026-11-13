@@ -6,39 +6,26 @@
   isolation: isolate;
 }
 
-/* ---- colunas de cartas (estáticas, como na referência) ---- */
-.hero__colunas { position: absolute; inset: 0; z-index: -1; --larg: clamp(96px, 11.8vw, 190px); }
-.hero__coluna {
-  position: absolute;
-  top: 0;
-  width: var(--larg);
-  display: flex;
-  flex-direction: column;
-  gap: calc(var(--larg) * 0.16);
-  transform: translateY(var(--desloc));
-}
-.hero__coluna--c1 { left: calc(var(--larg) * -0.62); }
-.hero__coluna--c2 { left: calc(var(--larg) * 0.62); }
-.hero__coluna--c3 { right: calc(var(--larg) * 2.02); }
-.hero__coluna--c4 { right: calc(var(--larg) * 0.82); }
-.hero__coluna--c5 { right: calc(var(--larg) * -0.42); }
-
+/* ---- cartas em xadrez (posições calculadas em src/lib/hero-grade.js) ---- */
+.hero__colunas { position: absolute; inset: 0; z-index: -1; }
 .hero__carta {
-  transition: translate 0.7s var(--ease), scale 0.7s var(--ease), border-color 0.5s, box-shadow 0.7s var(--ease);
-  padding: 4px;
-  border: 1px solid var(--ouro-fraco);
-  border-radius: 9px;
+  position: absolute;
+  padding: 0.45%;
+  border: 1px solid var(--ouro);
+  border-radius: 10px;
   background: var(--fundo-2);
+  transition: translate 0.7s var(--ease), scale 0.7s var(--ease), box-shadow 0.7s var(--ease);
 }
-.hero__carta:hover { translate: 0 -10px; scale: 1.03; border-color: var(--ouro); box-shadow: 0 0 30px rgba(201, 164, 92, 0.35), 0 20px 40px rgba(0, 0, 0, 0.6); }
-.hero__carta img { width: 100%; height: auto; aspect-ratio: 600 / 1036; border-radius: 6px; }
+.hero__carta::after { content: ''; position: absolute; inset: 5px; border: 1px solid var(--ouro-fraco); border-radius: 6px; pointer-events: none; }
+.hero__carta:hover { translate: 0 -8px; scale: 1.03; box-shadow: 0 0 30px rgba(201, 164, 92, 0.35), 0 20px 40px rgba(0, 0, 0, 0.6); z-index: 1; }
+.hero__carta img { width: 100%; height: 100%; object-fit: cover; border-radius: 7px; filter: brightness(0.9) contrast(1.05); }
 
 /* ---- wordmark ---- */
 .hero__palco { position: absolute; left: 0; right: 0; top: 17%; display: flex; justify-content: center; }
 .wordmark {
   position: relative;
   font-family: var(--fonte-display);
-  font-weight: 900;
+  font-weight: 400;
   line-height: 0.8;
   letter-spacing: 0;
   color: var(--creme);
@@ -72,12 +59,6 @@
 .barra-base a:hover { color: var(--ouro-claro); }
 
 @media (max-width: 760px) {
-  .hero__colunas { --larg: 31vw; }
-  .hero__coluna--c1 { left: calc(var(--larg) * -0.55); }
-  .hero__coluna--c2 { display: none; }
-  .hero__coluna--c3 { display: none; }
-  .hero__coluna--c4 { right: calc(var(--larg) * -0.55); }
-  .hero__coluna--c5 { display: none; }
   .hero__palco { top: 24%; }
   .hero__colunas::after {
     content: ''; position: absolute; inset: 0;
@@ -85,21 +66,14 @@
   }
 }
 
-/* tablet e notebook pequeno: afasta a coluna interna da direita dos botões */
-@media (min-width: 761px) and (max-width: 1100px) {
-  .hero__coluna--c3 { right: calc(var(--larg) * 1.55); }
-  .hero__coluna--c2 { left: calc(var(--larg) * 0.5); }
-}
 
 /* celular deitado / telas baixas */
 @media (max-height: 520px) and (min-width: 561px) {
-  .hero__colunas { --larg: clamp(70px, 10vw, 110px); }
   .hero__palco { top: 13%; }
   .hero__acoes { top: 62%; gap: 0; }
   .hero__acoes .botao { min-height: 40px; }
   .hero__acoes .botao__colchete { height: 40px; }
   .hero__acoes .botao__texto { font-size: 12px; }
-  .hero__coluna--c3 { display: none; }
   .barra-base { padding-bottom: 8px; }
   .barra-base__linha { margin-bottom: 6px; }
 }

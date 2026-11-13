@@ -28,7 +28,7 @@
   content: ''; position: absolute; left: -4px; top: -4px; width: 7px; height: 7px;
   border: 1px solid var(--ouro); background: var(--fundo); transform: rotate(45deg);
 }
-.passo__num { font-family: var(--fonte-titulo); font-size: 40px; color: var(--ouro); line-height: 1; }
+.passo__num { font-family: var(--fonte-display); font-size: 54px; color: var(--ouro); line-height: 1; }
 .passo__titulo { font-family: var(--fonte-titulo); font-size: clamp(20px, 2vw, 24px); line-height: 1.25; color: var(--creme); }
 .passo__texto { font-family: var(--fonte-rotulo); font-size: 13px; line-height: 1.7; color: rgba(245, 239, 228, 0.7); }
 

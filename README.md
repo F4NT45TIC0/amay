@@ -7,7 +7,7 @@ Estático (Vite + GSAP), sem servidor e sem banco de dados. Hospedagem gratuita 
 
 | Página | Arquivo | O que tem |
 |---|---|---|
-| Início | `index.html` | Primeira dobra com as cartas, e as seções: como funciona, oferta em destaque, métodos, consultas, magias, sobre e perguntas frequentes |
+| Início | `index.html` | Primeira dobra com as cartas; a galeria horizontal das leituras (a página trava e as leituras passam de lado); a cena das velas com o convite para a consulta prévia; como funciona, sobre e perguntas frequentes |
 | Tirar a carta | `tirar-carta.html` | O leque de cartas, a revelação e o resultado com a leitura recomendada |
 | Os Arcanos | `arcanos.html` | Os 22 Arcanos Maiores e o significado de cada um |
 
@@ -32,6 +32,7 @@ Tudo fica em **um arquivo só**: [`public/ofertas.json`](public/ofertas.json). N
 - **Criar uma promoção com prazo:** copie um item parecido e preencha:
   - `precoDe` (opcional): o preço antigo, que aparece riscado.
   - `validoAte`: o **último dia** em que a promoção aparece, no formato `AAAA-MM-DD`. Depois dessa data ela **some sozinha**.
+- **Escolher a carta que ilustra a leitura:** o campo `arte` é o número do Arcano Maior (0 a 21) que aparece ao lado da leitura na galeria. Ex.: `6` = Os Enamorados, `19` = O Sol.
 - **Tipos de item:**
 
   | `tipo` | Onde aparece |
@@ -63,7 +64,7 @@ Depois de ter o endereço definitivo (ex.: `amaybruxa.com.br`), troque `content=
 - **Cartas:** Rider–Waite (1909), ilustradas por Pamela Colman Smith, em domínio público, via Wikimedia Commons. São baixadas e tratadas por `npm run cartas`.
 - **Fundo da tiragem:** *Abtei im Eichwald*, de Caspar David Friedrich (1809–10), em domínio público, via Wikimedia Commons. É gerado por `node scripts/baixar-fundo.mjs`.
 - **Prévia de compartilhamento:** `node scripts/gerar-og.mjs <caminho do Unbounded.ttf>`.
-- **Fontes:** Unbounded, Bellefair, Geist Mono, Inter e Pinyon Script, do Google Fonts (licença OFL).
+- **Fontes:** Anton, Bellefair, Geist Mono, Inter e Pinyon Script, do Google Fonts (licença OFL).
 - **Ornamentos, verso das cartas e textos:** criados para a AMAYBRUXA.
 
 ## Estrutura

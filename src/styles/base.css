@@ -13,6 +13,7 @@ body {
   line-height: 1.6;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  font-synthesis: none; /* a Anton só tem um peso: nada de negrito falso */
 }
 img, svg { display: block; max-width: 100%; }
 a { color: inherit; }

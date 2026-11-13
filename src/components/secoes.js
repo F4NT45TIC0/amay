@@ -1,16 +1,42 @@
-import { el, botao, divisoria, moldura, ESTRELA } from '../lib/ornamentos.js';
+import { el, botao, ESTRELA, LUA } from '../lib/ornamentos.js';
 import { filtrarAtivas, porTipo, formatarPreco, formatarData } from '../lib/ofertas.js';
 import { linkContato, mensagemPara } from '../lib/contato.js';
 import { rodape } from './rodape.js';
+import { montarRitual } from './ritual.js';
 
 export const CONTATO_PADRAO = { whatsapp: '', instagram: '_amaybruxa' };
-const ROMANOS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
+const ROMANOS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV'];
+const ARTE_PADRAO = 17;
+const caminhoDaArte = (n) => `/cartas/${String(n ?? ARTE_PADRAO).padStart(2, '0')}.webp`;
 
-const estrela = () => {
+const svg = (markup) => {
   const t = document.createElement('template');
-  t.innerHTML = ESTRELA;
+  t.innerHTML = markup.trim(); // só recebe as constantes SVG deste projeto
   return t.content.firstElementChild;
 };
+
+/**
+ * As paradas da jornada, na ordem: ofertas em destaque, métodos autorais,
+ * as duas consultas avulsas (cada uma agrupando seus preços) e as magias.
+ */
+export function itensDaJornada(itens, hoje) {
+  const ativos = filtrarAtivas(itens ?? [], hoje);
+  const simples = (item) => ({ ...item, arte: caminhoDaArte(item.arte) });
+  const grupo = (id, nome, subtitulo, descricao, nota, arte, linhas) => (linhas.length
+    ? [{ id, tipo: 'consulta', nome, subtitulo, descricao, nota, arte: caminhoDaArte(arte), linhas }]
+    : []);
+  return [
+    ...porTipo(ativos, 'destaque').map(simples),
+    ...porTipo(ativos, 'metodo').map(simples),
+    ...grupo('perguntas-objetivas', 'Perguntas objetivas', 'Leitura de oráculos',
+      'Para uma dúvida pontual: você pergunta, as cartas respondem.',
+      'Respondidas ao vivo ou em até 2 dias úteis após o pagamento.', 1, porTipo(ativos, 'consulta-pergunta')),
+    ...grupo('consulta-por-tempo', 'Consulta por tempo', 'Leitura de oráculos',
+      'Uma conversa mais longa com as cartas, ao vivo, no seu ritmo.',
+      'Com hora marcada. Agende com antecedência.', 9, porTipo(ativos, 'consulta-tempo')),
+    ...porTipo(ativos, 'magia').map(simples),
+  ];
+}
 
 function cabecalho(rotulo, titulo, texto) {
   return el('header', { class: 'secao__cabecalho' },
@@ -19,30 +45,71 @@ function cabecalho(rotulo, titulo, texto) {
     texto && el('p', { class: 'secao__texto' }, texto));
 }
 
-function preco(item, classe = '') {
-  return el('p', { class: `preco ${classe}` },
+function preco(item) {
+  return el('p', { class: 'preco' },
     item.precoDe && el('s', { class: 'preco__de' }, formatarPreco(item.precoDe)),
     el('span', { class: 'preco__valor' }, formatarPreco(item.preco)));
 }
 
-function topicos(lista = []) {
-  return el('ul', { class: 'topicos' }, lista.map((t) => el('li', {}, estrela(), el('span', {}, t))));
+/** Uma parada da jornada: a arte do arcano inclinada de um lado, o texto do outro. */
+function parada(item, indice, total, contato) {
+  const par = indice % 2 === 0;
+  const arte = el('figure', { class: 'parada__arte', 'data-profundidade': par ? '0.16' : '-0.12' },
+    el('span', { class: 'parada__halo' }),
+    el('img', { src: item.arte, alt: '', decoding: 'async', width: 600, height: 1036 }));
+
+  const corpo = el('div', { class: 'parada__corpo' },
+    el('p', { class: 'parada__indice' },
+      el('span', {}, ROMANOS[indice] ?? String(indice + 1)),
+      el('span', { class: 'parada__traco' }),
+      el('span', {}, `${String(indice + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`)),
+    item.subtitulo && el('p', { class: 'rotulo parada__sub' },
+      item.subtitulo, item.validoAte && ` · válido até ${formatarData(item.validoAte)}`),
+    el('h3', { class: 'parada__nome' }, item.nome),
+    item.descricao && el('p', { class: 'parada__desc' }, item.descricao),
+    item.linhas
+      ? el('ul', { class: 'parada__linhas' }, item.linhas.map((linha) =>
+        el('li', {},
+          el('a', { href: linkContato(contato, mensagemPara({ item: linha })), target: '_blank', rel: 'noopener noreferrer' },
+            el('span', { class: 'parada__linha-nome' }, linha.nome, linha.observacao && el('small', {}, linha.observacao)),
+            el('span', { class: 'parada__pontos', 'aria-hidden': 'true' }),
+            el('span', { class: 'parada__linha-preco' }, formatarPreco(linha.preco))))))
+      : el('ul', { class: 'parada__topicos' }, (item.topicos ?? []).slice(0, 4).map((t) => el('li', {}, svg(ESTRELA), el('span', {}, t)))),
+    item.nota && el('p', { class: 'parada__nota' }, item.nota),
+    !item.linhas && el('div', { class: 'parada__rodape' },
+      preco(item),
+      botao({
+        texto: item.tipo === 'magia' && item.id === 'consulta-magias' ? 'Agendar consulta' : 'Quero esta leitura',
+        href: linkContato(contato, mensagemPara({ item })),
+      })));
+
+  return el('article', {
+    class: `parada ${par ? 'parada--a' : 'parada--b'}`, 'data-item': item.id, 'data-tipo': item.tipo,
+  }, arte, corpo);
 }
 
-/** Cartão creme, no mesmo desenho do cartão de resultado da referência. */
-function cartaoCreme(item, indice, contato, textoBotao = 'Quero esta leitura') {
-  return el('article', { class: 'cartao-creme', 'data-item': item.id },
-    el('div', { class: 'cartao-creme__topo' },
-      el('span', { class: 'cartao-creme__linha' }),
-      el('span', { class: 'cartao-creme__num' }, ROMANOS[indice] ?? ''),
-      el('span', { class: 'cartao-creme__linha' })),
-    el('p', { class: 'rotulo cartao-creme__sub' }, item.subtitulo ?? ''),
-    el('h3', { class: 'cartao-creme__nome' }, item.nome),
-    item.descricao && el('p', { class: 'cartao-creme__desc' }, item.descricao),
-    topicos(item.topicos),
-    el('div', { class: 'cartao-creme__rodape' },
-      preco(item),
-      botao({ texto: textoBotao, href: linkContato(contato, mensagemPara({ item })), variante: 'escuro' })));
+/** Enfeites que flutuam entre as paradas, em profundidades diferentes. */
+function enfeite(tipo, classe, profundidade) {
+  const marcacao = tipo === 'lua' ? LUA : ESTRELA;
+  return el('span', { class: `enfeite enfeite--${tipo} ${classe}`, 'data-profundidade': String(profundidade), 'aria-hidden': 'true' }, svg(marcacao));
+}
+
+function secaoLeituras(itens, contato) {
+  const trilho = el('div', { class: 'jornada__trilho' },
+    el('div', { class: 'jornada__abertura' },
+      el('p', { class: 'rotulo secao__rotulo' }, 'As leituras'),
+      el('h2', { class: 'jornada__frase' }, 'Toda pergunta', el('br'), 'tem uma ', el('em', {}, 'carta.')),
+      el('p', { class: 'jornada__dica' }, 'Continue rolando: cada parada é uma leitura.'),
+      enfeite('lua', 'enfeite--g', 0.3), enfeite('estrela', 'enfeite--p', -0.2)),
+    itens.map((item, i) => parada(item, i, itens.length, contato)),
+    el('div', { class: 'jornada__fecho' },
+      el('h2', { class: 'jornada__frase' }, 'O que é', el('br'), el('em', {}, 'oculto'), el('br'), 'pede luz.'),
+      enfeite('estrela', 'enfeite--g', 0.35)));
+
+  return el('section', { class: 'jornada', id: 'leituras', 'data-secao': 'leituras' },
+    el('div', { class: 'jornada__fumaca', 'aria-hidden': 'true' }),
+    el('div', { class: 'jornada__janela' }, trilho),
+    el('div', { class: 'jornada__progresso', 'aria-hidden': 'true' }, el('span', {})));
 }
 
 function secaoComoFunciona() {
@@ -56,66 +123,9 @@ function secaoComoFunciona() {
       cabecalho('Como funciona', 'A leitura, passo a passo'),
       el('ol', { class: 'passos' }, passos.map(([titulo, texto], i) =>
         el('li', { class: 'passo' },
-          el('span', { class: 'passo__num' }, ROMANOS[i]),
+          el('span', { class: 'passo__num' }, `0${i + 1}`),
           el('p', { class: 'passo__titulo' }, titulo),
           el('p', { class: 'passo__texto' }, texto))))));
-}
-
-function secaoDestaque(itens, contato) {
-  if (!itens.length) return null;
-  return el('section', { class: 'secao secao--destaque', 'data-secao': 'destaque' },
-    el('div', { class: 'container' },
-      itens.map((item) => moldura(el('div', { class: 'destaque', 'data-item': item.id },
-        el('p', { class: 'rotulo secao__rotulo' }, `Oferta em destaque${item.validoAte ? ` · válido até ${formatarData(item.validoAte)}` : ''}`),
-        el('h2', { class: 'destaque__nome' }, item.nome),
-        item.subtitulo && el('p', { class: 'destaque__sub' }, item.subtitulo),
-        divisoria(),
-        el('p', { class: 'secao__texto' }, item.descricao),
-        topicos(item.topicos),
-        preco(item, 'preco--grande'),
-        botao({ texto: 'Quero o meu', href: linkContato(contato, mensagemPara({ item })) }))))));
-}
-
-function secaoMetodos(metodos, contato) {
-  return el('section', { class: 'secao secao--metodos', id: 'leituras', 'data-secao': 'metodos' },
-    el('div', { class: 'container' },
-      cabecalho('Métodos de tiragem autorais', 'Escolha sua leitura',
-        'Cada método foi criado pela Amay para olhar um tema da sua vida com profundidade.'),
-      el('div', { class: 'grade-cartoes' }, metodos.map((m, i) => cartaoCreme(m, i, contato)))));
-}
-
-function tabela(titulo, itens, nota, contato) {
-  return el('div', { class: 'tabela' },
-    el('h3', { class: 'rotulo tabela__titulo' }, titulo),
-    el('ul', { class: 'tabela__linhas' }, itens.map((item) =>
-      el('li', { class: 'tabela__linha', 'data-item': item.id },
-        el('a', { href: linkContato(contato, mensagemPara({ item })), target: '_blank', rel: 'noopener noreferrer' },
-          el('span', { class: 'tabela__nome' }, item.nome, item.observacao && el('small', {}, item.observacao)),
-          el('span', { class: 'tabela__ponto', 'aria-hidden': 'true' }),
-          el('span', { class: 'tabela__preco' }, formatarPreco(item.preco)))))),
-    el('p', { class: 'tabela__nota' }, nota));
-}
-
-function secaoConsultas(perguntas, tempo, contato) {
-  return el('section', { class: 'secao secao--consultas', 'data-secao': 'consultas' },
-    el('div', { class: 'container' },
-      cabecalho('Leitura de oráculos', 'Consultas avulsas',
-        'Para uma dúvida pontual ou uma conversa mais longa com as cartas.'),
-      el('div', { class: 'tabelas' },
-        tabela('Perguntas objetivas', perguntas, 'Respondidas ao vivo ou em até 2 dias úteis após o pagamento.', contato),
-        tabela('Consulta por tempo', tempo, 'Com hora marcada. Agende com antecedência para garantir o melhor horário.', contato))));
-}
-
-function secaoMagias(magias, contato) {
-  const consulta = magias.find((m) => m.id === 'consulta-magias');
-  const promocoes = magias.filter((m) => m !== consulta);
-  return el('section', { class: 'secao secao--magias', 'data-secao': 'magias' },
-    el('div', { class: 'container' },
-      cabecalho('Magias', 'Toda magia começa por uma consulta',
-        'Não realizo nenhum trabalho espiritual sem antes consultar o oráculo. É assim que garantimos que a magia seja feita da forma correta e com segurança.'),
-      el('div', { class: 'grade-cartoes grade-cartoes--magias' },
-        consulta && cartaoCreme(consulta, 0, contato, 'Agendar consulta para magias'),
-        promocoes.map((p, i) => cartaoCreme(p, i + 1, contato, 'Quero esta magia')))));
 }
 
 function secaoSobre() {
@@ -125,7 +135,7 @@ function secaoSobre() {
       el('p', { class: 'secao__texto' },
         'Taróloga, oraculista e bruxa, a Amay lê o Tarô e o Baralho Cigano para quem busca clareza, autoconhecimento e direção com base espiritual.'),
       el('p', { class: 'secao__texto' },
-        'Cada leitura é feita com tempo, cuidado e verdade — sem respostas prontas. As cartas mostram os caminhos; as escolhas continuam sendo suas.')));
+        'Cada leitura é feita com tempo, cuidado e verdade, sem respostas prontas. As cartas mostram os caminhos; as escolhas continuam sendo suas.')));
 }
 
 function secaoFaq() {
@@ -144,17 +154,6 @@ function secaoFaq() {
         el('p', { class: 'faq__resposta' }, r)))));
 }
 
-function secaoFinal(contato, titulo = 'Comece pela consulta prévia') {
-  return el('section', { class: 'secao secao--final', 'data-secao': 'final' },
-    el('div', { class: 'container final' },
-      divisoria(),
-      el('h2', { class: 'secao__titulo' }, titulo),
-      el('p', { class: 'secao__texto' }, 'Me mande uma mensagem. Conversamos sem compromisso e eu te indico o melhor caminho.'),
-      el('div', { class: 'final__acoes' },
-        botao({ texto: 'Falar com a Amay', href: linkContato(contato, mensagemPara()) }),
-        botao({ texto: 'Tirar minha carta', href: '/tirar-carta.html', variante: 'secundario' }))));
-}
-
 function secaoReserva(contato) {
   return el('section', { class: 'secao secao--final', 'data-secao': 'reserva', id: 'leituras' },
     el('div', { class: 'container final' },
@@ -165,20 +164,17 @@ function secaoReserva(contato) {
 
 export function renderizarSecoes(raiz, dados, hoje) {
   if (!dados) {
-    raiz.append(secaoComoFunciona(), secaoReserva(CONTATO_PADRAO), rodape(CONTATO_PADRAO));
+    raiz.append(secaoReserva(CONTATO_PADRAO), secaoComoFunciona(), rodape(CONTATO_PADRAO));
     return;
   }
   const contato = dados.contato ?? CONTATO_PADRAO;
-  const ativos = filtrarAtivas(dados.itens ?? [], hoje);
+  const itens = itensDaJornada(dados.itens, hoje);
   raiz.append(...[
+    itens.length ? secaoLeituras(itens, contato) : secaoReserva(contato),
+    montarRitual(contato),
     secaoComoFunciona(),
-    secaoDestaque(porTipo(ativos, 'destaque'), contato),
-    secaoMetodos(porTipo(ativos, 'metodo'), contato),
-    secaoConsultas(porTipo(ativos, 'consulta-pergunta'), porTipo(ativos, 'consulta-tempo'), contato),
-    secaoMagias(porTipo(ativos, 'magia'), contato),
     secaoSobre(),
     secaoFaq(),
-    secaoFinal(contato),
     rodape(contato),
   ].filter(Boolean));
 }

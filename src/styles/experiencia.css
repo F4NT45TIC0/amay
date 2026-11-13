@@ -1,0 +1,129 @@
+/* ================= A jornada: leituras em rolagem horizontal ================= */
+.jornada { position: relative; height: 100svh; min-height: 560px; overflow: hidden; background: var(--fundo); isolation: isolate; }
+.jornada__janela { position: absolute; inset: 0; }
+.jornada__trilho { display: flex; align-items: center; height: 100%; width: max-content; will-change: transform; padding-right: 12vw; }
+
+.jornada__fumaca {
+  position: absolute; inset: -20%; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(ellipse 38% 44% at 18% 78%, rgba(122, 28, 44, 0.5), transparent 70%),
+    radial-gradient(ellipse 34% 40% at 82% 20%, rgba(90, 21, 32, 0.55), transparent 70%),
+    radial-gradient(ellipse 50% 36% at 55% 58%, rgba(201, 164, 92, 0.07), transparent 70%);
+  filter: blur(30px);
+  animation: fumaca 26s ease-in-out infinite alternate;
+}
+@keyframes fumaca { from { transform: translate(-3%, 2%) scale(1); } to { transform: translate(3%, -2%) scale(1.08); } }
+
+.jornada__progresso { position: absolute; left: var(--gutter); right: var(--gutter); bottom: 22px; height: 1px; background: var(--ouro-fraco); }
+.jornada__progresso span { display: block; height: 100%; background: var(--ouro-claro); transform-origin: left; transform: scaleX(0); }
+
+.jornada__abertura, .jornada__fecho { position: relative; flex: none; width: min(92vw, 980px); padding-inline: clamp(24px, 8vw, 120px); display: grid; gap: 22px; }
+.jornada__frase { font-family: var(--fonte-display); font-weight: 400; text-transform: uppercase; font-size: clamp(64px, 11.5vw, 190px); line-height: 0.9; letter-spacing: 0.005em; }
+.jornada__frase em { font-family: var(--fonte-script); font-style: normal; text-transform: none; color: var(--ouro-claro); font-size: 1.05em; letter-spacing: 0; padding-inline: 0.06em; }
+.jornada__dica { font-family: var(--fonte-rotulo); font-size: 14px; line-height: 24px; color: var(--creme-2); }
+
+/* ---- enfeites em profundidades diferentes ---- */
+.enfeite { position: absolute; color: var(--ouro); pointer-events: none; }
+.enfeite svg { width: 100%; height: 100%; }
+.enfeite--g { width: clamp(70px, 9vw, 150px); height: clamp(70px, 9vw, 150px); right: 4%; top: -26%; opacity: 0.85; }
+.enfeite--p { width: 26px; height: 26px; left: 62%; bottom: -30%; }
+.jornada__fecho .enfeite--g { top: auto; bottom: -20%; right: 12%; }
+
+/* ---- parada: uma leitura ---- */
+.parada {
+  position: relative; flex: none;
+  width: min(90vw, 1120px);
+  margin-inline: clamp(12px, 5vw, 90px);
+  display: grid; grid-template-columns: minmax(0, 0.72fr) minmax(0, 1fr); align-items: center;
+  gap: clamp(20px, 5vw, 80px);
+}
+.parada--a { transform: translateY(-3vh); }
+.parada--b { transform: translateY(3vh); }
+
+.parada__arte { position: relative; margin: 0; display: grid; place-items: center; }
+.parada__arte img {
+  width: min(100%, calc(64svh * 0.579)); height: auto; aspect-ratio: 600 / 1036;
+  border-radius: 12px; border: 1px solid var(--ouro);
+  box-shadow: 0 0 0 7px rgba(18, 7, 9, 0.9), 0 0 0 8px var(--ouro-fraco), 0 50px 90px -20px rgba(0, 0, 0, 0.9), 0 0 80px rgba(201, 164, 92, 0.16);
+  rotate: 0deg;
+}
+.parada__halo {
+  position: absolute; width: 130%; aspect-ratio: 1; border-radius: 50%; z-index: -1;
+  background: radial-gradient(closest-side, rgba(214, 120, 70, 0.26), rgba(122, 28, 44, 0.2) 50%, transparent 72%);
+}
+
+.parada__corpo { display: grid; gap: 14px; align-content: center; min-width: 0; }
+.parada__indice { display: flex; align-items: center; gap: 12px; font-family: var(--fonte-titulo); font-size: 15px; color: var(--ouro-claro); letter-spacing: 0.1em; }
+.parada__indice span:last-child { font-family: var(--fonte-rotulo); font-size: 12px; letter-spacing: 0; color: rgba(245, 239, 228, 0.55); }
+.parada__traco { width: 44px; height: 1px; background: var(--ouro); }
+.parada__sub { color: var(--ouro); font-size: 12px; }
+.parada__nome { font-family: var(--fonte-display); font-weight: 400; text-transform: uppercase; font-size: clamp(44px, 6.2vw, 104px); line-height: 0.94; letter-spacing: 0.005em; text-wrap: balance; }
+.parada__desc { font-family: var(--fonte-rotulo); font-size: 14px; line-height: 24px; color: var(--creme-2); max-width: 46ch; }
+.parada__topicos { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; max-width: 52ch; }
+.parada__topicos li { display: grid; grid-template-columns: 10px 1fr; gap: 12px; align-items: start; font-family: var(--fonte-rotulo); font-size: 12.5px; line-height: 20px; color: rgba(245, 239, 228, 0.78); }
+.parada__topicos svg { width: 9px; height: 9px; margin-top: 6px; color: var(--ouro); }
+.parada__nota { font-family: var(--fonte-rotulo); font-size: 12px; color: rgba(245, 239, 228, 0.55); }
+.parada__rodape { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 28px; margin-top: 6px; padding-top: 14px; border-top: 1px solid var(--ouro-fraco); }
+.parada__rodape .preco__valor { font-size: clamp(30px, 3.4vw, 46px); color: var(--ouro-claro); font-weight: 400; }
+
+.parada__linhas { list-style: none; margin: 4px 0 0; padding: 0; border-top: 1px solid var(--ouro-fraco); max-width: 520px; }
+.parada__linhas li { border-bottom: 1px solid rgba(201, 164, 92, 0.2); }
+.parada__linhas a { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px; padding: 13px 0; text-decoration: none; }
+.parada__linha-nome { font-family: var(--fonte-titulo); font-size: 21px; display: grid; }
+.parada__linha-nome small { font-family: var(--fonte-rotulo); font-size: 11px; color: var(--ouro); }
+.parada__pontos { height: 1px; background-image: linear-gradient(90deg, var(--ouro-fraco) 50%, transparent 0); background-size: 6px 1px; }
+.parada__linha-preco { font-family: var(--fonte-display); font-size: 24px; color: var(--ouro-claro); transition: color 0.3s; }
+.parada__linhas a:hover .parada__linha-preco { color: var(--creme); }
+
+/* sem animação: vira um carrossel de arrastar */
+.jornada--livre { height: auto; min-height: 0; padding: 80px 0; }
+.jornada--livre .jornada__janela { position: relative; overflow-x: auto; scroll-snap-type: x mandatory; }
+.jornada--livre .parada, .jornada--livre .jornada__abertura { scroll-snap-align: center; }
+.jornada--livre .jornada__progresso { display: none; }
+
+/* ================= O ritual: acender a vela ================= */
+.ritual { position: relative; background: var(--fundo); }
+.ritual__cena { position: relative; height: 100svh; min-height: 560px; overflow: hidden; isolation: isolate; display: grid; grid-template-rows: auto 1fr auto auto; justify-items: center; padding: clamp(40px, 8vh, 80px) var(--gutter) clamp(28px, 5vh, 54px); text-align: center; }
+.ritual__cena::before { content: ''; position: absolute; inset: 0; z-index: -3; background: radial-gradient(ellipse 60% 55% at 50% 48%, #3a0d14, #170709 72%); }
+
+.ritual__titulo { font-family: var(--fonte-display); font-weight: 400; text-transform: uppercase; font-size: clamp(60px, 12vw, 200px); line-height: 0.86; letter-spacing: 0.005em; color: var(--creme); position: relative; z-index: 3; text-shadow: 0 10px 50px rgba(0, 0, 0, 0.6); }
+.ritual__titulo--baixo { grid-row: 3; }
+.ritual__script { position: absolute; right: clamp(16px, 16vw, 300px); top: clamp(120px, 26vh, 250px); z-index: 3; font-family: var(--fonte-script); font-size: clamp(26px, 3.6vw, 52px); color: var(--ouro-claro); rotate: -5deg; }
+.ritual__latim { position: absolute; left: 0; right: 0; top: 36%; z-index: 3; font-size: 12px; letter-spacing: 0.3em; color: var(--ouro-claro); }
+
+.ritual__ponto { position: absolute; left: 50%; top: 47%; width: 0; height: 0; z-index: 4; --p: clamp(120px, 15vw, 220px); --t: clamp(280px, 44vw, 640px); }
+.ritual__ponto svg { max-width: none; }
+.ritual__apagada { position: absolute; width: var(--p); left: calc(var(--p) * -0.5); top: calc(var(--p) * -0.4067); overflow: visible; }
+.ritual__acesa { position: absolute; width: var(--t); left: calc(var(--t) * -0.7833); top: calc(var(--t) * -0.16); transform-origin: 78.33% 43.6%; overflow: visible; }
+.ritual__raios { position: absolute; width: 2800px; height: 2800px; left: -1400px; top: -1400px; z-index: -1; pointer-events: none; }
+.ritual__clarao { position: absolute; width: 60vmin; height: 60vmin; left: -30vmin; top: -30vmin; border-radius: 50%; z-index: -1; pointer-events: none; background: radial-gradient(closest-side, rgba(255, 236, 190, 0.95), rgba(255, 170, 80, 0.4) 30%, rgba(201, 164, 92, 0.12) 60%, transparent 75%); mix-blend-mode: screen; }
+
+.ritual__fumaca { position: absolute; z-index: 5; width: 62vmax; height: 62vmax; border-radius: 50%; pointer-events: none; filter: blur(26px); }
+.ritual__fumaca--esq { left: -26vmax; bottom: -30vmax; background: radial-gradient(closest-side, rgba(143, 52, 70, 0.75), rgba(90, 21, 32, 0.5) 55%, transparent 72%); }
+.ritual__fumaca--dir { right: -28vmax; top: -30vmax; background: radial-gradient(closest-side, rgba(170, 96, 104, 0.6), rgba(90, 21, 32, 0.45) 55%, transparent 72%); }
+
+.ritual__chamada { grid-row: 4; position: relative; z-index: 6; display: grid; justify-items: center; gap: 6px; margin-top: 10px; }
+.ritual__texto { font-family: var(--fonte-rotulo); font-size: 13px; line-height: 22px; color: var(--creme-2); max-width: 46ch; }
+
+/* sem animação: a cena já aparece acesa */
+.ritual--aceso .ritual__acesa { display: none; }
+
+@media (max-width: 760px) {
+  .parada, .parada--b { grid-template-columns: 1fr; width: 86vw; gap: 18px; align-content: center; transform: none; }
+  .parada__arte img { width: auto; height: 30svh; }
+  .parada__nome { font-size: clamp(38px, 12vw, 60px); }
+  .parada__desc { font-size: 13px; line-height: 21px; }
+  .parada__topicos li:nth-child(n + 3) { display: none; }
+  .jornada__abertura, .jornada__fecho { width: 90vw; }
+  .jornada__frase { font-size: 19vw; }
+  .ritual__script { right: 8vw; top: 21vh; }
+  .ritual__ponto { top: 46%; --p: 30vw; --t: 74vw; }
+  .ritual__latim { top: 33%; }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  .parada__arte img { height: 62svh; width: auto; }
+  .parada__nome { font-size: clamp(30px, 5vw, 48px); }
+  .parada__topicos { display: none; }
+  .ritual__titulo { font-size: 15vh; }
+  .ritual__ponto { --p: 14vw; --t: 40vw; }
+}
