@@ -1,0 +1,88 @@
+/* ---------- Botão com colchetes ---------- */
+.botao {
+  --cor: var(--ouro);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 52px;
+  padding: 0 4px;
+  color: var(--creme);
+  text-decoration: none;
+  transition: color 0.4s var(--ease);
+  -webkit-tap-highlight-color: transparent;
+}
+.botao__colchete {
+  width: 8px;
+  height: 52px;
+  color: var(--cor);
+  flex: none;
+  transition: transform 0.5s var(--ease), color 0.4s;
+}
+.botao__texto { white-space: nowrap; padding: 6px 0; position: relative; }
+.botao__texto::after {
+  content: '';
+  position: absolute; left: 50%; right: 50%; bottom: 0;
+  height: 1px; background: var(--ouro);
+  transition: left 0.5s var(--ease), right 0.5s var(--ease);
+}
+.botao:hover .botao__colchete:first-child, .botao:focus-visible .botao__colchete:first-child { transform: translateX(-6px); }
+.botao:hover .botao__colchete:last-child, .botao:focus-visible .botao__colchete:last-child { transform: translateX(6px); }
+.botao:hover .botao__texto::after, .botao:focus-visible .botao__texto::after { left: 0; right: 0; }
+.botao:hover { color: var(--ouro-claro); }
+.botao:focus-visible { outline: 1px dashed var(--ouro); outline-offset: 6px; }
+
+.botao--primario .botao__texto { font-size: 13px; }
+.botao--secundario { --cor: var(--ouro-fraco); }
+.botao--secundario .botao__texto { font-size: 12px; color: var(--creme-2); }
+
+/* botão sobre fundo creme */
+.botao--escuro { color: var(--tinta); --cor: var(--vinho-claro); }
+.botao--escuro:hover { color: var(--vinho); }
+.botao--escuro .botao__texto::after { background: var(--vinho); }
+
+/* ---------- Divisória ---------- */
+.divisoria {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--ouro);
+  width: min(100%, 360px);
+  margin-inline: auto;
+}
+.divisoria svg { width: 14px; height: 14px; flex: none; }
+.divisoria__linha { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--ouro-fraco) 30%, var(--ouro)); }
+.divisoria__linha:last-child { transform: scaleX(-1); }
+
+/* ---------- Moldura com cantoneiras ---------- */
+.moldura {
+  position: relative;
+  border: 1px solid var(--ouro-fraco);
+  color: var(--ouro);
+  padding: clamp(28px, 5vw, 56px) clamp(18px, 4vw, 48px);
+}
+.moldura > *:not(.moldura__canto) { color: var(--creme); }
+.moldura__canto { position: absolute; width: clamp(34px, 6vw, 60px); height: auto; pointer-events: none; }
+.moldura__canto:nth-child(1) { top: -1px; left: -1px; }
+.moldura__canto:nth-child(2) { top: -1px; right: -1px; transform: scaleX(-1); }
+.moldura__canto:nth-child(3) { bottom: -1px; right: -1px; transform: scale(-1, -1); }
+.moldura__canto:nth-child(4) { bottom: -1px; left: -1px; transform: scaleY(-1); }
+
+/* ---------- Marca ---------- */
+.marca { display: inline-flex; flex-direction: column; align-items: center; color: var(--creme); }
+.marca__nome { font-family: var(--fonte-titulo); letter-spacing: 0.08em; line-height: 0.9; }
+.marca__selo { display: flex; align-items: center; gap: 10px; color: var(--ouro); width: 100%; margin-top: 0.15em; }
+.marca__selo svg { width: 0.32em; height: 0.32em; min-width: 12px; min-height: 12px; }
+.marca__linha { flex: 1; height: 1px; background: currentColor; opacity: 0.7; }
+.marca--pequena { font-size: 28px; }
+.marca--hero { font-size: clamp(48px, 15.5vw, 230px); }
+.marca--hero .marca__nome { letter-spacing: 0.04em; }
+
+/* ---------- Rodapé ---------- */
+.rodape { border-top: 1px solid var(--ouro-fraco); padding: 64px 0 40px; text-align: center; background: var(--fundo); position: relative; z-index: 2; }
+.rodape__dentro { display: flex; flex-direction: column; align-items: center; gap: 28px; }
+.rodape__links { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 28px; }
+.rodape__links a { text-decoration: none; color: var(--creme-2); }
+.rodape__links a:hover { color: var(--ouro-claro); }
+.rodape__aviso { max-width: 520px; font-size: 13px; color: rgba(245, 239, 228, 0.6); }
+.rodape__credito { font-size: 10px; color: rgba(245, 239, 228, 0.4); }
