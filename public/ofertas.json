@@ -1,0 +1,152 @@
+{
+  "_comoEditar": [
+    "Este arquivo é o catálogo do site. Edite com cuidado: textos entre aspas, vírgula entre itens.",
+    "preco e precoDe usam ponto decimal: 77.77 (não 77,77).",
+    "validoAte (opcional) = último dia em que o item aparece, no formato AAAA-MM-DD. Depois disso ele some sozinho.",
+    "tipo: consulta-pergunta | consulta-tempo | metodo | magia | destaque.",
+    "contato.whatsapp: só números, com 55 + DDD. Ex.: 5511987654321. Se ficar vazio, os botões levam ao Instagram."
+  ],
+  "contato": {
+    "whatsapp": "5500000000000",
+    "instagram": "_amaybruxa"
+  },
+  "itens": [
+    { "id": "pergunta-1", "tipo": "consulta-pergunta", "nome": "1 pergunta", "preco": 25.97 },
+    { "id": "pergunta-3", "tipo": "consulta-pergunta", "nome": "3 perguntas", "preco": 57.97 },
+    { "id": "pergunta-5", "tipo": "consulta-pergunta", "nome": "5 perguntas", "preco": 89.97, "observacao": "Ganha um conselho da espiritualidade" },
+
+    { "id": "tempo-30", "tipo": "consulta-tempo", "nome": "30 minutos", "preco": 77.77 },
+    { "id": "tempo-60", "tipo": "consulta-tempo", "nome": "1 hora", "preco": 117.77 },
+    { "id": "tempo-90", "tipo": "consulta-tempo", "nome": "1 hora e 30 minutos", "preco": 177.77 },
+
+    {
+      "id": "grimorio-dos-amantes",
+      "tipo": "metodo",
+      "nome": "Grimório dos Amantes",
+      "subtitulo": "Método de tiragem autoral",
+      "descricao": "Uma leitura profunda sobre sua vida amorosa, revelando o que é visto e o que é oculto.",
+      "topicos": [
+        "I. Os Pensamentos Velados — o que ocupa a mente da pessoa e como ela percebe a conexão",
+        "II. Os Segredos do Coração — sentimentos, desejos, afetos e conflitos emocionais",
+        "III. As Verdadeiras Intenções — motivações, propósitos e possíveis atitudes em relação a você",
+        "IV. Os Caminhos dos Amantes — tendências, desafios e possibilidades para a relação",
+        "V. O Decreto do Invisível — a perspectiva espiritual e a orientação final da leitura"
+      ],
+      "preco": 77.77
+    },
+    {
+      "id": "alem-do-invisivel",
+      "tipo": "metodo",
+      "nome": "Além do Invisível",
+      "subtitulo": "Método de tiragem",
+      "descricao": "Para entender com profundidade uma área específica da sua vida: amorosa, profissional, financeira, espiritual ou familiar.",
+      "topicos": [
+        "Energias que te cercam no momento",
+        "Influências externas e internas",
+        "Possíveis bloqueios ou padrões repetitivos",
+        "Caminhos de superação e decisões importantes",
+        "Tendências futuras e previsões espirituais",
+        "Conselhos da espiritualidade para alinhar essa área"
+      ],
+      "preco": 77.97
+    },
+    {
+      "id": "meu-ex-amor",
+      "tipo": "metodo",
+      "nome": "Tudo sobre Meu Ex Amor",
+      "subtitulo": "Método de tiragem",
+      "descricao": "Um mergulho nos sentimentos, pensamentos e caminhos entre você e quem já foi especial.",
+      "topicos": [
+        "Os sentimentos que ele(a) ainda guarda por você",
+        "Se ele(a) ainda pensa em você — e se já te superou",
+        "Se ainda existe um reencontro no destino",
+        "O estado atual das emoções dele(a) em relação ao amor",
+        "Se vale a pena fazer contato e o que pode acontecer",
+        "Um conselho direto da espiritualidade sobre esse vínculo"
+      ],
+      "preco": 87.77
+    },
+    {
+      "id": "caminhos-do-ouro",
+      "tipo": "metodo",
+      "nome": "Caminhos do Ouro",
+      "subtitulo": "Método de tiragem",
+      "descricao": "Simples e objetivo: o que está bloqueando sua prosperidade e como destravar.",
+      "topicos": [
+        "Sua situação financeira atual",
+        "O que está travando sua prosperidade",
+        "Como superar os bloqueios",
+        "Conselhos da espiritualidade",
+        "Indicação de banho energético, conforme a leitura"
+      ],
+      "preco": 67.00
+    },
+    {
+      "id": "quatro-chaves",
+      "tipo": "metodo",
+      "nome": "As Quatro Chaves do Destino",
+      "subtitulo": "Método de tiragem",
+      "descricao": "Uma leitura completa das quatro áreas essenciais da sua vida, com orientações para cada caminho.",
+      "topicos": [
+        "Vida amorosa — relacionamentos, sentimentos e possibilidades",
+        "Vida profissional — carreira, oportunidades e desafios",
+        "Vida financeira — prosperidade, bloqueios e evolução",
+        "Vida espiritual — energia pessoal e desenvolvimento interior"
+      ],
+      "preco": 177.97
+    },
+
+    {
+      "id": "mapa-oracular-2027",
+      "tipo": "destaque",
+      "nome": "Mapa Oracular de 2027",
+      "subtitulo": "Tarô e Baralho Cigano",
+      "descricao": "Seu ano, seus caminhos, suas possibilidades. 2027 analisado em quatro trimestres, com previsões e orientações para cada fase.",
+      "topicos": [
+        "Amor, financeiro e profissional, espiritualidade",
+        "Previsões por trimestre ao longo dos 12 meses",
+        "PDF exclusivo com seus arcanos regentes — anual, pessoal e a conexão entre eles",
+        "Foto da sua tiragem e mensagem final de direcionamento"
+      ],
+      "preco": 227.77,
+      "validoAte": "2026-11-20"
+    },
+
+    {
+      "id": "consulta-magias",
+      "tipo": "magia",
+      "nome": "Consulta para Magias",
+      "subtitulo": "Obrigatória antes de qualquer magia",
+      "descricao": "Antes de qualquer trabalho espiritual, uma consulta oracular para garantir que a magia seja feita da forma correta e com segurança.",
+      "topicos": [
+        "Se há caminhos e possibilidades",
+        "Qual magia é ideal para o seu caso",
+        "Como deve ser feita e quais elementos a compõem",
+        "Quais fatores precisam ser vistos além da magia"
+      ],
+      "preco": 77.00
+    },
+    {
+      "id": "novembro-prosperidade",
+      "tipo": "magia",
+      "nome": "Novembro de Prosperidade",
+      "subtitulo": "Promoção exclusiva de novembro",
+      "descricao": "Toda magia de prosperidade com valor especial. Encerre o ano com caminhos abertos para 2027.",
+      "topicos": ["Abertura de caminhos", "Atração de clientes", "Coroa de sucesso", "Oportunidades", "Movimentação financeira"],
+      "preco": 387.77,
+      "precoDe": 477.00,
+      "validoAte": "2026-11-30"
+    },
+    {
+      "id": "glamour-magnetismo",
+      "tipo": "magia",
+      "nome": "Glamour e Magnetismo",
+      "subtitulo": "Promoção exclusiva de novembro",
+      "descricao": "Para não passar despercebida.",
+      "topicos": ["Autoestima e confiança", "Atração de olhares", "Empoderamento", "Oportunidades", "Mais escolhas e movimento"],
+      "preco": 437.77,
+      "precoDe": 557.77,
+      "validoAte": "2026-11-30"
+    }
+  ]
+}
