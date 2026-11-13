@@ -63,7 +63,7 @@ export function moldura(conteudo, classe = '') {
 
 export function marca(tamanho = 'pequena') {
   return el('div', { class: `marca marca--${tamanho}` },
-    el('span', { class: 'marca__nome' }, 'AMAYBRUXA'),
+    el('span', { class: 'marca__nome' }, el('span', {}, 'AMAY'), el('span', {}, 'BRUXA')),
     el('span', { class: 'marca__selo', 'aria-hidden': 'true' },
       el('span', { class: 'marca__linha' }), svg(LUA), el('span', { class: 'marca__linha' })));
 }

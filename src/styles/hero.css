@@ -1,0 +1,93 @@
+.hero {
+  position: relative;
+  height: 100svh;
+  min-height: 560px;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  justify-items: center;
+  isolation: isolate;
+}
+
+/* ---- colunas de cartas ---- */
+.hero__colunas {
+  position: absolute; inset: 0;
+  display: grid;
+  grid-template-columns: repeat(2, var(--col)) 1fr repeat(2, var(--col));
+  gap: var(--vao);
+  padding-inline: var(--vao);
+  --col: clamp(110px, 11vw, 190px);
+  --vao: clamp(10px, 1.6vw, 26px);
+  z-index: -2;
+}
+.hero__coluna { overflow: hidden; height: 100%; }
+.hero__coluna--esq:nth-child(1) { grid-column: 1; }
+.hero__coluna--esq:nth-child(2) { grid-column: 2; }
+.hero__coluna--dir:nth-child(3) { grid-column: 4; }
+.hero__coluna--dir:nth-child(4) { grid-column: 5; }
+.hero__trilho { display: flex; flex-direction: column; gap: var(--vao); padding-bottom: var(--vao); will-change: transform; }
+.hero__carta {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 600 / 1036;
+  border-radius: 8px;
+  border: 1px solid var(--ouro-fraco);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  background: var(--vinho);
+}
+
+.hero__veu {
+  position: absolute; inset: 0; z-index: -1;
+  background:
+    radial-gradient(ellipse 42% 60% at 50% 55%, rgba(18, 7, 9, 0.92), rgba(18, 7, 9, 0.35) 70%, transparent),
+    linear-gradient(180deg, rgba(18, 7, 9, 0.55), transparent 25%, transparent 75%, rgba(18, 7, 9, 0.95));
+}
+
+/* ---- marca ---- */
+.hero__marca { margin-top: clamp(28px, 6vh, 64px); width: 100%; text-align: center; padding-inline: 8px; }
+.hero__marca .marca { width: min(100%, 1400px); }
+.hero__marca .marca__nome { text-shadow: 0 6px 40px rgba(0, 0, 0, 0.7); }
+
+/* ---- centro ---- */
+.hero__centro {
+  align-self: center;
+  display: flex; flex-direction: column; align-items: center; gap: 22px;
+  text-align: center;
+}
+.hero__chamada { color: var(--ouro); font-size: 11px; }
+.hero__acoes { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+
+/* ---- base ---- */
+.hero__base {
+  width: 100%;
+  display: flex; justify-content: space-between; gap: 16px;
+  padding: 18px var(--gutter);
+  border-top: 1px solid var(--ouro-fraco);
+  font-size: 10px;
+  color: var(--creme-2);
+}
+.hero__base a { text-decoration: none; }
+.hero__base a:hover { color: var(--ouro-claro); }
+
+@media (max-width: 760px) {
+  .hero__colunas {
+    grid-template-columns: var(--col) 1fr var(--col);
+    --col: 30vw;
+    padding-inline: 0;
+    margin-inline: -12vw;
+  }
+  .hero__coluna--esq:nth-child(1) { grid-column: 1; }
+  .hero__coluna--esq:nth-child(2), .hero__coluna--dir:nth-child(3) { display: none; }
+  .hero__coluna--dir:nth-child(4) { grid-column: 3; }
+  .hero__veu {
+    background:
+      radial-gradient(ellipse 70% 55% at 50% 55%, rgba(18, 7, 9, 0.95), rgba(18, 7, 9, 0.55) 75%, rgba(18, 7, 9, 0.3)),
+      linear-gradient(180deg, rgba(18, 7, 9, 0.6), transparent 25%, transparent 75%, rgba(18, 7, 9, 0.95));
+  }
+  .hero__marca { margin-top: 9vh; }
+  .hero__marca .marca { font-size: 25vw; width: auto; }
+  .hero__marca .marca__nome > span { display: block; }
+  .hero__marca .marca__nome > span + span { margin-top: -0.05em; }
+  .hero__rolar { display: none; }
+  .hero__base { justify-content: center; }
+}

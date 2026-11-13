@@ -75,7 +75,7 @@
 .marca__selo svg { width: 0.32em; height: 0.32em; min-width: 12px; min-height: 12px; }
 .marca__linha { flex: 1; height: 1px; background: currentColor; opacity: 0.7; }
 .marca--pequena { font-size: 28px; }
-.marca--hero { font-size: clamp(48px, 15.5vw, 230px); }
+.marca--hero { font-size: clamp(44px, 12.6vw, 200px); }
 .marca--hero .marca__nome { letter-spacing: 0.04em; }
 
 /* ---------- Rodapé ---------- */
