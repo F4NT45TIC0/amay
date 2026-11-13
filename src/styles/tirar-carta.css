@@ -43,10 +43,10 @@ body.travado { overflow: hidden; }
 .tirar__voltar:hover { color: var(--ouro-claro); }
 
 .tirar__texto {
-  position: absolute; left: 50%; top: 26%; transform: translateX(-50%);
-  width: min(92vw, 640px);
-  text-align: center; text-transform: none; letter-spacing: 0.02em;
-  font-size: clamp(12px, 1.2vw, 14px); line-height: 2; color: var(--creme);
+  position: absolute; left: 50%; top: 27%; transform: translateX(-50%);
+  width: min(92vw, 680px);
+  text-align: center;
+  font-family: var(--fonte-rotulo); font-size: 14px; line-height: 24px; letter-spacing: 0; color: var(--creme);
   display: grid; min-height: 4em;
 }
 
@@ -62,7 +62,7 @@ body.travado { overflow: hidden; }
   -webkit-tap-highlight-color: transparent;
   touch-action: pan-y;
 }
-.carta-leque__dentro { position: relative; display: block; width: 100%; height: 100%; border-radius: 10px; box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.55); transition: box-shadow 0.5s var(--ease); }
+.carta-leque__dentro { position: relative; display: block; width: 100%; height: 100%; border-radius: 12px; border: 1px solid var(--ouro); background: rgba(18, 7, 9, 0.35); box-shadow: -8px -4px 26px rgba(0, 0, 0, 0.6); transition: box-shadow 0.5s var(--ease); }
 .carta-leque__brilho {
   position: absolute; inset: 0; border-radius: 10px; pointer-events: none;
   background: linear-gradient(180deg, rgba(230, 201, 142, 0.28), transparent 45%);
@@ -70,7 +70,7 @@ body.travado { overflow: hidden; }
 }
 .carta-leque--realce .carta-leque__dentro { box-shadow: 0 0 0 1px var(--ouro), 0 0 34px 2px rgba(201, 164, 92, 0.45), 0 -10px 30px rgba(0, 0, 0, 0.6); }
 .carta-leque--realce .carta-leque__brilho { opacity: 1; }
-.carta-leque__dentro img { width: 100%; height: 100%; border-radius: 10px; pointer-events: none; user-select: none; }
+.carta-leque__dentro img { width: 100%; height: 100%; border-radius: 11px; pointer-events: none; user-select: none; }
 .carta-leque:focus-visible .carta-leque__dentro { box-shadow: 0 0 0 2px var(--ouro), 0 -6px 24px rgba(0, 0, 0, 0.55); }
 
 /* ---- carta em voo ---- */
@@ -84,26 +84,27 @@ body.travado { overflow: hidden; }
   background: linear-gradient(105deg, transparent 38%, rgba(255, 236, 200, 0.55) 50%, transparent 62%);
   mix-blend-mode: soft-light; pointer-events: none;
 }
-.voo--brilhando .voo__face--verso { box-shadow: 0 0 0 1px var(--ouro), 0 0 40px 6px rgba(201, 164, 92, 0.55), 0 30px 80px rgba(0, 0, 0, 0.7); }
+.voo__halo {
+  position: absolute; inset: -55%; border-radius: 50%; opacity: 0; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(226, 170, 110, 0.34), rgba(201, 164, 92, 0.1) 55%, transparent 75%);
+  mix-blend-mode: screen;
+}
+.voo__face--verso { border: 1px solid var(--ouro); }
 
 /* ================= Revelação (moldura em tela cheia) ================= */
 .revelacao { position: relative; height: 100svh; min-height: 560px; overflow: hidden; isolation: isolate; }
 .revelacao__arte {
-  position: absolute; inset: -6%; z-index: -2;
+  position: absolute; inset: 0; z-index: -2;
   background-size: cover; background-position: center 30%;
-  filter: blur(26px) brightness(0.42) saturate(0.85) sepia(0.35);
-  transform: scale(1.15);
+  transform-origin: center 30%;
 }
-.revelacao__carta {
-  position: absolute; left: 50%; top: 50%; z-index: 1;
-  width: min(62vw, calc(60vh * 0.579));
-  height: auto; aspect-ratio: 600 / 1036;
-  translate: -50% -50%;
-  border-radius: 10px;
-  border: 1px solid var(--ouro-fraco);
-  box-shadow: 0 0 60px rgba(201, 164, 92, 0.25), 0 40px 100px rgba(0, 0, 0, 0.75);
+.revelacao__veu {
+  position: absolute; inset: 0; z-index: -1;
+  background-color: rgba(18, 7, 9, 0);
+  background-image:
+    radial-gradient(ellipse 85% 75% at 50% 45%, transparent 35%, rgba(18, 7, 9, 0.7) 100%),
+    linear-gradient(180deg, rgba(18, 7, 9, 0.5), transparent 22%, transparent 60%, rgba(18, 7, 9, 0.92));
 }
-.revelacao__veu { position: absolute; inset: 0; z-index: -1; background: radial-gradient(ellipse 50% 60% at 50% 50%, rgba(201,164,92,.14), transparent 70%), linear-gradient(180deg, rgba(18,7,9,.4), rgba(18,7,9,.1) 40%, rgba(18,7,9,.85)), linear-gradient(rgba(70,14,24,.45), rgba(70,14,24,.45)); }
 .revelacao__moldura.moldura { position: absolute; inset: clamp(10px, 2vw, 24px); padding: 0; border-color: var(--ouro); }
 .revelacao__rotulos { position: absolute; inset: 0; }
 .revelacao__num, .revelacao__nome {
@@ -135,7 +136,7 @@ body.travado { overflow: hidden; }
 .resultado__mini { width: 100%; height: auto; border-radius: 6px; box-shadow: 0 12px 30px rgba(28, 16, 18, 0.35); }
 .resultado__titulo { display: grid; gap: 14px; align-content: start; }
 .resultado__sub { font-family: var(--fonte-rotulo); font-size: 13px; }
-.resultado__nome { font-family: var(--fonte-display); font-weight: 800; font-size: clamp(32px, 5.6vw, 58px); line-height: 0.92; text-transform: uppercase; letter-spacing: -0.03em; }
+.resultado__nome { font-family: var(--fonte-display); font-weight: 800; font-size: clamp(46px, 8vw, 88px); line-height: 0.88; text-transform: uppercase; letter-spacing: 0.005em; }
 .resultado__frase { font-family: var(--fonte-rotulo); font-size: 14px; line-height: 1.7; }
 .resultado__grade { display: grid; grid-template-columns: 1fr 1fr; }
 .resultado__bloco { padding: 22px 0 6px; display: grid; gap: 10px; align-content: start; }
@@ -148,19 +149,18 @@ body.travado { overflow: hidden; }
 
 /* ---- ponte para a venda ---- */
 .ponte { width: min(100%, 760px); display: grid; justify-items: center; text-align: center; gap: 22px; }
-.ponte__pergunta { font-family: var(--fonte-display); font-weight: 800; font-size: clamp(24px, 4vw, 40px); line-height: 1.05; text-transform: uppercase; letter-spacing: -0.02em; }
+.ponte__pergunta { font-family: var(--fonte-display); font-weight: 800; font-size: clamp(34px, 5.4vw, 60px); line-height: 0.95; text-transform: uppercase; letter-spacing: 0.005em; }
 .ponte__pergunta em { font-style: normal; color: var(--ouro-claro); }
 .ponte__metodo { border: 1px solid var(--ouro-fraco); padding: 24px clamp(18px, 4vw, 40px); display: grid; gap: 10px; width: 100%; }
 .ponte__rotulo { color: var(--ouro); font-size: 11px; }
 .ponte__nome { font-family: var(--fonte-script); font-size: clamp(38px, 6vw, 54px); line-height: 1.1; color: var(--ouro-claro); }
 .ponte__desc { font-family: var(--fonte-rotulo); font-size: 13px; line-height: 1.7; color: var(--creme-2); max-width: 520px; margin-inline: auto; }
-.ponte__preco { font-family: var(--fonte-display); font-weight: 700; font-size: 22px; }
+.ponte__preco { font-family: var(--fonte-display); font-weight: 800; font-size: 30px; }
 .ponte__acoes { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 26px; }
 
 @media (max-width: 760px) {
 
-  .carta-leque { width: 25vw; }
-  .tirar__texto { top: 22%; }
+  .tirar__texto { top: 22%; font-size: 13px; line-height: 22px; }
   .resultado__cabeca { grid-template-columns: 96px 1fr; }
   .resultado__grade { grid-template-columns: 1fr; }
   .resultado__bloco:nth-child(n) { padding: 18px 0 6px; border-right: 0; border-top: 1px solid var(--linha); }
@@ -168,25 +168,12 @@ body.travado { overflow: hidden; }
   .revelacao__frase { display: none; }
 }
 
-/* ---- explosão de luz na revelação ---- */
-.explosao { position: fixed; left: 50%; top: 50%; width: 0; height: 0; z-index: 6; pointer-events: none; }
-.explosao__luz {
-  position: absolute; left: -45vmin; top: -45vmin; width: 90vmin; height: 90vmin; border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 228, 180, 0.55), rgba(201, 164, 92, 0.18) 40%, transparent 70%);
-  mix-blend-mode: screen;
-}
-.explosao__anel { position: absolute; left: -16vmin; top: -16vmin; width: 32vmin; height: 32vmin; border-radius: 50%; border: 1px solid var(--ouro-claro); }
-.faisca { position: absolute; left: -2px; top: -2px; width: 4px; height: 4px; border-radius: 50%; background: #ffe2a8; box-shadow: 0 0 8px 2px rgba(255, 210, 140, 0.8); }
-
 /* tablet em pé: cartas maiores */
 @media (min-width: 761px) and (orientation: portrait) {
-  .carta-leque { width: 16vw; }
-  .tirar__texto { font-size: 15px; }
 }
 /* celular deitado: cartas e texto compactos */
 @media (max-height: 520px) and (orientation: landscape) {
-  .carta-leque { width: clamp(70px, 10vw, 110px); }
-  .tirar__texto { top: 16%; font-size: 11px; line-height: 1.8; }
+  .tirar__texto { top: 15%; font-size: 12px; line-height: 20px; }
   .tirar__voltar { top: 14px; }
   .revelacao__frase { display: none; }
 }

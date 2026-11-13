@@ -15,7 +15,9 @@ const NOMES = [
   'Tower', 'Star', 'Moon', 'Sun', 'Judgement', 'World',
 ];
 const LARGURA = 600;
+const LARGURA_GRANDE = 1400; // para a revelação em tela cheia
 const SAIDA = path.resolve('public/cartas');
+const SAIDA_GRANDE = path.resolve('public/cartas/g');
 
 const textoPapel = (w, h) => Buffer.from(`
 <svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
@@ -35,7 +37,7 @@ const vinheta = (w, h) => Buffer.from(`
 
 async function baixar(nome, destino) {
   const arquivo = `RWS Tarot ${nome}.jpg`;
-  const url = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(arquivo)}?width=900`;
+  const url = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(arquivo)}?width=1500`;
   for (let tentativa = 1; tentativa <= 4; tentativa++) {
     const r = await fetch(url, { headers: { 'User-Agent': 'amaybruxa-site-build/1.0' }, redirect: 'follow' });
     if (r.ok) {
@@ -50,8 +52,8 @@ async function baixar(nome, destino) {
   throw new Error(`${arquivo}: falhou após 4 tentativas`);
 }
 
-async function tratar(origem, destino) {
-  const base = await sharp(origem).resize({ width: LARGURA }).toBuffer({ resolveWithObject: true });
+async function tratar(origem, destino, largura = LARGURA, qualidade = 78) {
+  const base = await sharp(origem).resize({ width: largura, withoutEnlargement: true }).toBuffer({ resolveWithObject: true });
   const { width: w, height: h } = base.info;
   await sharp(base.data)
     .modulate({ brightness: 0.82, saturation: 0.85 })
@@ -60,19 +62,20 @@ async function tratar(origem, destino) {
       { input: textoPapel(w, h), blend: 'over' },
       { input: vinheta(w, h), blend: 'over' },
     ])
-    .webp({ quality: 78 })
+    .webp({ quality: qualidade })
     .toFile(destino);
 }
 
 const temp = await fs.mkdtemp(path.join(os.tmpdir(), 'amaybruxa-cartas-'));
-await fs.mkdir(SAIDA, { recursive: true });
+await fs.mkdir(SAIDA_GRANDE, { recursive: true });
 for (const [i, nome] of NOMES.entries()) {
   const nn = String(i).padStart(2, '0');
   const bruto = path.join(temp, `${nn}.jpg`);
   await baixar(`${nn} ${nome}`, bruto);
   await tratar(bruto, path.join(SAIDA, `${nn}.webp`));
+  await tratar(bruto, path.join(SAIDA_GRANDE, `${nn}.webp`), LARGURA_GRANDE, 70);
   console.log(`✓ ${nn} ${nome}`);
   await new Promise((ok) => setTimeout(ok, 400));
 }
 await fs.rm(temp, { recursive: true, force: true });
-console.log('Pronto: public/cartas/00–21.webp');
+console.log('Pronto: public/cartas/00–21.webp e public/cartas/g/00–21.webp');

@@ -11,13 +11,13 @@
   --tinta: #1c1012;
   --rosa: #b3263a;
 
-  --fonte-display: 'Unbounded', 'Arial Black', sans-serif;
+  --fonte-display: 'Big Shoulders Stencil Display', 'Impact', 'Arial Narrow', sans-serif;
   --fonte-titulo: 'Bellefair', 'Times New Roman', serif;
   --fonte-rotulo: 'Geist Mono', ui-monospace, monospace;
   --fonte-texto: 'Inter', system-ui, sans-serif;
   --fonte-script: 'Pinyon Script', 'Bellefair', cursive;
 
-  --rotulo-espaco: 0.12em;
+  --rotulo-espaco: 0.02em;
   --gutter: clamp(16px, 4vw, 48px);
   --largura: 1180px;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);

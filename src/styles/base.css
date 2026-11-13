@@ -24,6 +24,7 @@ p { margin: 0; }
 .rotulo {
   font-family: var(--fonte-rotulo);
   font-size: 12px;
+  line-height: 1.7;
   letter-spacing: var(--rotulo-espaco);
   text-transform: uppercase;
 }

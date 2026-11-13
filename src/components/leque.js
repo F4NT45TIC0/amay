@@ -1,6 +1,6 @@
 import { gsap } from 'gsap';
 import { el } from '../lib/ornamentos.js';
-import { posicaoNoLeque, ehToque } from '../lib/leque.js';
+import { posicaoNoLeque, ehToque, aberturaDoLeque } from '../lib/leque.js';
 
 /**
  * Leque de cartas viradas. Chama `aoEscolher(arcano, elementoDaCarta, cartas)` uma única vez.
@@ -20,32 +20,45 @@ export function montarLeque(palco, arcanos, aoEscolher, sinal) {
   palco.append(leque);
 
   let raio = 0;
+  let abertura = 180;
   let giro = 0;
+  let limite = 60;
   let escolhida = false;
   let pronta = false;
-  const limite = 75;
   const dentros = cartas.map((c) => c.firstElementChild);
 
   /**
-   * Geometria da referência: o topo do arco fica em ~60% da altura e as pontas saem pelos
-   * cantos de baixo da tela. Raio externo (até o topo das cartas) resolvido a partir disso.
+   * Geometria da referência: cartas grandes e muito sobrepostas, formando uma cúpula cheia.
+   * O topo do arco fica em ~60% da altura; as cartas são altas o bastante para cobrir tudo
+   * até a base da tela (sem "buraco" no meio) e as pontas saem pelos cantos de baixo.
    */
   function dispor() {
     const W = innerWidth;
     const H = innerHeight;
-    const alturaCarta = cartas[0].offsetHeight;
     const deitado = W > H * 1.6 && H < 560; // celular deitado
-    const topo = deitado ? 0.5 : W < 760 ? 0.68 : 0.6;
+    const retrato = H > W;
+    const topo = deitado ? 0.48 : retrato ? 0.64 : 0.6;
     const abaixo = H * (1 - topo);
-    // em telas verticais o arco fica mais largo que a tela, para as pontas saírem pelas laterais
-    const minimoRetrato = H > W ? W * 0.95 : 0;
-    const externo = Math.max(((W / 2) ** 2 + abaixo ** 2) / (2 * abaixo), alturaCarta * 2.7, minimoRetrato);
+    // altura suficiente para a carta do topo chegar à base da tela
+    let alturaCarta = abaixo * 1.08;
+    let larguraCarta = alturaCarta * (300 / 518);
+    const larguraMax = W * (retrato ? 0.46 : 0.19);
+    if (larguraCarta > larguraMax) { larguraCarta = larguraMax; alturaCarta = larguraCarta * (518 / 300); }
+    cartas.forEach((c) => { c.style.width = `${larguraCarta}px`; });
+
+    const externo = Math.max(((W / 2) ** 2 + abaixo ** 2) / (2 * abaixo), alturaCarta * 2.1, retrato ? W * 1.1 : 0);
     raio = externo - alturaCarta;
+    abertura = aberturaDoLeque({ total: cartas.length, larguraCarta, raioExterno: externo, visivel: retrato ? 0.36 : 0.4 });
+    // quanto dá para girar: até a última carta chegar perto do centro da tela
+    const meiaVisivel = (Math.asin(Math.min(1, W / 2 / externo)) * 180) / Math.PI;
+    limite = Math.max(0, abertura / 2 - meiaVisivel * 0.45);
     leque.style.setProperty('--centro-y', `${topo * H + externo - H}px`);
     cartas.forEach((c, i) => {
-      const p = posicaoNoLeque(i, cartas.length, raio);
+      const p = posicaoNoLeque(i, cartas.length, raio, abertura);
       gsap.set(c, { x: p.x, y: p.y, rotation: p.rotacao, xPercent: -50, yPercent: -100, transformOrigin: '50% 100%' });
     });
+    giro = Math.max(-limite, Math.min(limite, giro));
+    gsap.set(roda, { rotation: giro });
   }
   dispor();
   addEventListener('resize', dispor, { signal: sinal });
@@ -62,8 +75,8 @@ export function montarLeque(palco, arcanos, aoEscolher, sinal) {
       const dist = i - indice;
       const longe = Math.abs(dist);
       gsap.to(d, {
-        y: dist === 0 ? -34 : 0,
-        rotation: dist === 0 || longe > 3 ? 0 : Math.sign(dist) * (4.2 - longe * 1.1),
+        y: dist === 0 ? -cartas[0].offsetHeight * 0.14 : 0,
+        rotation: dist === 0 || longe > 3 ? 0 : Math.sign(dist) * (2.6 - longe * 0.7),
         duration: 0.55, ease: 'power3.out', overwrite: 'auto',
       });
     });
@@ -126,19 +139,25 @@ export function montarLeque(palco, arcanos, aoEscolher, sinal) {
   }
 
   return {
-    /** O baralho surge empilhado no centro e se abre em leque. */
+    /**
+     * Como na referência: primeiro surge a cúpula só em contornos dourados, abrindo-se do centro;
+     * depois os versos das cartas se preenchem.
+     */
     entrar() {
       const meio = (cartas.length - 1) / 2;
+      const versos = dentros.map((d) => d.querySelector('img'));
       const tl = gsap.timeline({ onComplete: () => { pronta = true; respiracao.play(); } });
-      tl.from(cartas, {
-        x: (i) => (i - meio) * 0.6,
-        y: -raio * 0.62,
-        rotation: (i) => (i - meio) * 0.4,
-        duration: 1.9,
-        ease: 'expo.inOut',
-        stagger: { each: 0.025, from: 'center' },
-      })
-        .from(dentros, { opacity: 0, scale: 0.85, duration: 0.6, ease: 'power2.out', stagger: { each: 0.01, from: 'center' } }, 0);
+      tl.set(versos, { opacity: 0 })
+        .from(cartas, {
+          rotation: (i) => (i - meio) * 0.3,
+          x: 0,
+          y: -raio,
+          duration: 2.2,
+          ease: 'expo.inOut',
+          stagger: { each: 0.02, from: 'center' },
+        }, 0)
+        .from(dentros, { opacity: 0, duration: 0.8, ease: 'power2.out', stagger: { each: 0.015, from: 'center' } }, 0)
+        .to(versos, { opacity: 1, duration: 1.4, ease: 'power2.inOut', stagger: { each: 0.03, from: 'center' } }, 1.5);
       return tl;
     },
     pular() { pronta = true; respiracao.play(); },

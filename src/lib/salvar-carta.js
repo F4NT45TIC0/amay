@@ -61,7 +61,7 @@ function linhaComLosango(ctx, y, largura) {
 
 export async function gerarImagemCarta(arcano) {
   await Promise.all([
-    document.fonts.load('800 80px Unbounded'),
+    document.fonts.load('900 80px "Big Shoulders Stencil Display"'),
     document.fonts.load('40px Bellefair'),
     document.fonts.load('28px "Geist Mono"'),
   ]).catch(() => {});
@@ -95,7 +95,7 @@ export async function gerarImagemCarta(arcano) {
 
   // topo
   ctx.fillStyle = COR.creme;
-  ctx.font = '800 64px Unbounded, sans-serif';
+  ctx.font = '900 96px "Big Shoulders Stencil Display", sans-serif';
   ctx.fillText('AMAYBRUXA', L / 2, 190);
   ctx.fillStyle = COR.ouro;
   ctx.font = '26px "Geist Mono", monospace';
@@ -123,10 +123,10 @@ export async function gerarImagemCarta(arcano) {
   ctx.fillText(arcano.romano, L / 2, y);
   y += 96;
   ctx.fillStyle = COR.creme;
-  ctx.font = '800 82px Unbounded, sans-serif';
+  ctx.font = '800 130px "Big Shoulders Stencil Display", sans-serif';
   const nome = arcano.nome.toUpperCase();
   const medidaNome = ctx.measureText(nome).width;
-  if (medidaNome > L - 200) ctx.font = `800 ${Math.floor(82 * (L - 200) / medidaNome)}px Unbounded, sans-serif`;
+  if (medidaNome > L - 200) ctx.font = `800 ${Math.floor(130 * (L - 200) / medidaNome)}px "Big Shoulders Stencil Display", sans-serif`;
   ctx.fillText(nome, L / 2, y);
 
   y += 70;

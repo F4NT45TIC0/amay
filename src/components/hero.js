@@ -27,13 +27,20 @@ function wordmark() {
   return el('h1', { class: 'wordmark' }, el('span', { class: 'sr-only' }, 'AMAYBRUXA'), el('span', { class: 'wordmark__medida', 'aria-hidden': 'true' }, 'AMAYBRUXA'), camadas);
 }
 
-/** Ajusta o tamanho da fonte para o nome ocupar exatamente a largura alvo. */
+/**
+ * O logotipo da referência é uma fonte condensada esticada na horizontal (proporção ~5,7:1).
+ * Aqui: a altura define o tamanho da fonte e um scaleX estica o nome até a largura alvo.
+ */
+const PROPORCAO = 5.7;
 function ajustar(wm) {
   const medida = wm.querySelector('.wordmark__medida');
+  wm.style.transform = 'none';
   wm.style.fontSize = '100px';
-  const largura = medida.getBoundingClientRect().width || 1;
-  const alvo = wm.parentElement.clientWidth * (innerWidth < 760 ? 0.92 : 0.84);
-  wm.style.fontSize = `${(100 * alvo) / largura}px`;
+  const natural = medida.getBoundingClientRect().width || 1;
+  const alvo = wm.parentElement.clientWidth * (innerWidth < 760 ? 0.9 : 0.82);
+  const tamanho = alvo / PROPORCAO / 0.8; // 0.8 = line-height do wordmark
+  wm.style.fontSize = `${tamanho}px`;
+  wm.style.transform = `scaleX(${alvo / (natural * (tamanho / 100))})`;
 }
 
 export function montarHero(raiz) {

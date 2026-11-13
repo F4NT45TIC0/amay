@@ -1,5 +1,5 @@
 import { test, expect, beforeEach } from 'vitest';
-import { posicaoNoLeque, ehToque } from '../src/lib/leque.js';
+import { posicaoNoLeque, ehToque, aberturaDoLeque } from '../src/lib/leque.js';
 import { montarResultado } from '../src/components/resultado.js';
 import { ARCANOS } from '../src/data/arcanos.js';
 
@@ -53,4 +53,18 @@ test('resultado aceita outro subtítulo e texto de botão (página dos Arcanos)'
   montarResultado(raiz, ARCANOS[6], null, { whatsapp: '55' }, { subtitulo: 'Arcano Maior', textoOutra: 'Tirar uma carta' });
   expect(raiz.querySelector('.resultado__sub').textContent).toBe('Arcano Maior');
   expect(raiz.querySelector('[data-cta="outra"]').textContent).toContain('Tirar uma carta');
+});
+
+test('leque com abertura menor fica mais fechado e continua simétrico', () => {
+  const a = posicaoNoLeque(0, 22, 500, 120), b = posicaoNoLeque(21, 22, 500, 120);
+  expect(a.rotacao).toBeCloseTo(-60);
+  expect(b.rotacao).toBeCloseTo(60);
+  expect(a.x).toBeCloseTo(-b.x);
+});
+
+test('aberturaDoLeque: cartas sobrepostas na fração pedida, nunca passando de 180°', () => {
+  // 22 cartas de 200px num raio externo de 800: passo = 0.42*200/800 rad
+  const graus = aberturaDoLeque({ total: 22, larguraCarta: 200, raioExterno: 800, visivel: 0.42 });
+  expect(graus).toBeCloseTo((21 * 0.42 * 200 / 800) * 180 / Math.PI);
+  expect(aberturaDoLeque({ total: 22, larguraCarta: 400, raioExterno: 300, visivel: 0.9 })).toBe(180);
 });

@@ -18,8 +18,11 @@ iniciarCinema({ poeira: true });
 const app = document.getElementById('app');
 const reduz = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 const dadosPromessa = carregarOfertas();
+const PROPORCAO = 600 / 1036; // largura / altura das cartas
+const POSICAO_ARTE = 0.3; // enquadramento vertical da arte em tela cheia (0 = topo)
 
 const FRASES = ['O universo está falando.', 'Sinta a energia das cartas e escolha a que chama por você.'];
+const imagemGrande = (arcano) => arcano.imagem.replace('/cartas/', '/cartas/g/');
 
 let controle = null;
 
@@ -46,23 +49,20 @@ async function maquinaDeEscrever(alvo, sinal) {
   }
 }
 
-function explodir(palco) {
-  const centro = el('div', { class: 'explosao', 'aria-hidden': 'true' });
-  const faiscas = Array.from({ length: 28 }, () => el('span', { class: 'faisca' }));
-  centro.append(el('span', { class: 'explosao__anel' }), el('span', { class: 'explosao__luz' }), ...faiscas);
-  palco.append(centro);
-  const tl = gsap.timeline({ onComplete: () => centro.remove() });
-  tl.fromTo(centro.querySelector('.explosao__luz'), { scale: 0.2, opacity: 0.9 }, { scale: 2.6, opacity: 0, duration: 1.3, ease: 'expo.out' }, 0)
-    .fromTo(centro.querySelector('.explosao__anel'), { scale: 0.3, opacity: 1 }, { scale: 3.2, opacity: 0, duration: 1.4, ease: 'expo.out' }, 0)
-    .fromTo(faiscas, { x: 0, y: 0, opacity: 1, scale: 1 }, {
-      x: () => gsap.utils.random(-1, 1) * innerWidth * 0.32,
-      y: () => gsap.utils.random(-1, 1) * innerHeight * 0.32,
-      opacity: 0, scale: () => gsap.utils.random(0.2, 1.4),
-      duration: () => gsap.utils.random(1, 1.8), ease: 'expo.out',
-    }, 0);
-  return tl;
+/** Onde a arte fica quando cobre a tela inteira (mesma conta de um background-size: cover). */
+function enquadramentoCheio() {
+  const W = innerWidth;
+  const H = innerHeight;
+  const largura = Math.max(W, H * PROPORCAO);
+  const altura = largura / PROPORCAO;
+  return { largura, altura, centroX: W / 2, centroY: (H - altura) * POSICAO_ARTE + altura / 2 };
 }
 
+/**
+ * A sequência da referência, calma e cerimonial:
+ * a carta sobe do leque → o leque afunda e o fundo se acende → ela desliza até o centro,
+ * ainda de costas, e fica em suspense → vira → cresce até a arte ocupar a tela inteira.
+ */
 function revelar({ arcano, cartaEl, cartas, palco, texto }) {
   const dentro = cartaEl.firstElementChild;
   const rect = dentro.getBoundingClientRect();
@@ -70,62 +70,80 @@ function revelar({ arcano, cartaEl, cartas, palco, texto }) {
   const giroTotal = gsap.getProperty(roda, 'rotation') + gsap.getProperty(roda.parentElement, 'rotation')
     + gsap.getProperty(cartaEl, 'rotation') + gsap.getProperty(dentro, 'rotation');
 
+  const frente = el('img', { src: arcano.imagem, alt: arcano.nome });
   const voo = el('div', { class: 'voo' },
+    el('div', { class: 'voo__halo' }),
     el('div', { class: 'voo__dentro' },
       el('img', { class: 'voo__face voo__face--verso', src: '/cartas/verso.svg', alt: '' }),
-      el('div', { class: 'voo__face voo__face--frente' },
-        el('img', { src: arcano.imagem, alt: arcano.nome }),
-        el('span', { class: 'voo__brilho' }))));
+      el('div', { class: 'voo__face voo__face--frente' }, frente, el('span', { class: 'voo__brilho' }))));
   palco.append(voo);
+  // a arte em alta resolução carrega durante o voo, para a ampliação final sair nítida
+  const grande = new Image();
+  grande.src = imagemGrande(arcano);
+  grande.decode?.().then(() => { frente.src = grande.src; }).catch(() => {});
+
   const W = innerWidth;
   const H = innerHeight;
-  const largAlvo = Math.min(W * 0.62, H * 0.6 * (600 / 1036));
-  gsap.set(voo, {
-    left: rect.left + rect.width / 2, top: rect.top + rect.height / 2,
-    width: cartaEl.offsetWidth, xPercent: -50, yPercent: -50, rotation: giroTotal,
-  });
+  const larguraCarta = cartaEl.offsetWidth;
+  const alturaCarta = cartaEl.offsetHeight;
+  const largAlvo = Math.min(W * 0.66, H * 0.6 * PROPORCAO);
+  const rad = (giroTotal * Math.PI) / 180;
+  const x0 = rect.left + rect.width / 2;
+  const y0 = rect.top + rect.height / 2;
+  gsap.set(voo, { left: x0, top: y0, width: larguraCarta, xPercent: -50, yPercent: -50, rotation: giroTotal });
   cartaEl.style.visibility = 'hidden';
 
+  const pintura = palco.querySelector('.tirar__pintura');
+  const vela = palco.querySelector('.tirar__vela');
+  const sombra = palco.querySelector('.tirar__sombra');
+  const cheio = enquadramentoCheio();
   const tl = gsap.timeline();
+
   if (reduz()) {
     gsap.set(voo, { left: W / 2, top: H / 2, rotation: 0, width: largAlvo });
-    gsap.set(voo.firstElementChild, { rotationY: 180 });
+    gsap.set(voo.querySelector('.voo__dentro'), { rotationY: 180 });
     gsap.set([cartas, texto], { opacity: 0 });
-    return tl.to({}, { duration: 0.4 });
+    return tl.to({}, { duration: 0.6 });
   }
+
   const indice = cartas.indexOf(cartaEl);
+  const sobe = alturaCarta * 0.42; // sai do leque no próprio eixo
   return tl
-    .to(texto, { opacity: 0, y: -20, duration: 0.8, ease: 'power2.out' }, 0)
-    // a escolhida pulsa e brilha antes de subir
-    .to(voo, { scale: 1.1, duration: 0.35, ease: 'power2.out' }, 0)
-    .add(() => voo.classList.add('voo--brilhando'), 0)
-    // as outras caem, cada uma girando para um lado
+    .to(texto, { opacity: 0, y: -16, duration: 0.9, ease: 'power2.out' }, 0)
+    // 1. a carta sobe do leque
+    .to(voo, { left: x0 + Math.sin(rad) * sobe, top: y0 - Math.cos(rad) * sobe, duration: 0.9, ease: 'power3.out' }, 0)
+    .to(voo.querySelector('.voo__halo'), { opacity: 1, duration: 1.2, ease: 'power2.out' }, 0.2)
+    // 2. o leque afunda; o fundo se aproxima e se acende
     .to(cartas.filter((c) => c !== cartaEl), {
-      y: `+=${H * 0.75}`,
-      rotation: (i, c) => `+=${(cartas.indexOf(c) < indice ? -1 : 1) * gsap.utils.random(8, 26)}`,
-      opacity: 0, duration: 1.15, ease: 'power3.in',
-      stagger: { each: 0.018, from: indice },
-    }, 0.15)
-    // voo em arco até o centro
-    .to(voo, { left: W / 2, rotation: 0, width: largAlvo, scale: 1, duration: 1.5, ease: 'expo.inOut' }, 0.45)
-    .to(voo, { keyframes: [{ top: Math.min(rect.top, H * 0.5) - H * 0.12, ease: 'sine.out' }, { top: H / 2, ease: 'sine.inOut' }], duration: 1.5 }, 0.45)
-    // virada 3D com reflexo de luz
-    .to(voo.firstElementChild, { rotationY: 180, duration: 1.15, ease: 'power3.inOut' }, 1.75)
-    .fromTo(voo.querySelector('.voo__brilho'), { xPercent: -160 }, { xPercent: 160, duration: 1.2, ease: 'power2.inOut' }, 2.2)
-    .add(() => explodir(palco), 2.55)
-    .to({}, { duration: 0.9 });
+      y: `+=${H * 0.85}`, duration: 1.5, ease: 'power3.in',
+      stagger: { each: 0.022, from: indice },
+    }, 0.75)
+    .to(pintura, { scale: 1.16, duration: 4.2, ease: 'power2.inOut' }, 0.6)
+    .to(vela, { opacity: 1, scale: 1.6, duration: 3.2, ease: 'power2.inOut' }, 0.8)
+    .to(sombra, { opacity: 0.55, duration: 2.4, ease: 'power2.inOut' }, 0.8)
+    // 3. desliza até o centro, ainda de costas
+    .to(voo, { left: W / 2, top: H / 2, rotation: 0, width: largAlvo, duration: 1.9, ease: 'expo.inOut' }, 1.05)
+    // 4. suspense: paira um instante
+    .to(voo, { top: H / 2 - 8, duration: 1.1, ease: 'sine.inOut', yoyo: true, repeat: 1 }, 2.95)
+    // 5. vira
+    .to(voo.querySelector('.voo__dentro'), { rotationY: 180, duration: 1.3, ease: 'power3.inOut' }, 4.4)
+    .fromTo(voo.querySelector('.voo__brilho'), { xPercent: -160 }, { xPercent: 160, duration: 1.3, ease: 'power2.inOut' }, 4.9)
+    .to({}, { duration: 0.9 })
+    // 6. cresce até a arte ocupar a tela inteira
+    .to(voo.querySelector('.voo__halo'), { opacity: 0, duration: 0.6 }, '>-0.1')
+    .to(voo, { left: cheio.centroX, top: cheio.centroY, width: cheio.largura, duration: 1.7, ease: 'expo.inOut' }, '<')
+    .to(voo.querySelectorAll('.voo__face'), { borderRadius: 0, duration: 1.2, ease: 'power2.in' }, '<')
+    .to(sombra, { opacity: 1, duration: 1.2 }, '<');
 }
 
 function montarRevelacao(arcano) {
-  const arte = el('div', { class: 'revelacao__arte', style: `background-image:url(${arcano.imagem})` });
-  const carta = el('img', { class: 'revelacao__carta', src: arcano.imagem, alt: arcano.nome, width: 600, height: 1036 });
+  const arte = el('div', { class: 'revelacao__arte', style: `background-image:url(${imagemGrande(arcano)}), url(${arcano.imagem})` });
   const frame = moldura(el('div', { class: 'revelacao__rotulos' },
     el('span', { class: 'revelacao__num' }, arcano.romano),
     el('span', { class: 'revelacao__nome' }, arcano.nome)), 'revelacao__moldura');
   return el('section', { class: 'revelacao' },
     arte,
     el('div', { class: 'revelacao__veu' }),
-    carta,
     el('p', { class: 'revelacao__frase' }, arcano.frase),
     frame,
     el('p', { class: 'revelacao__dica rotulo' }, 'Role para ler a sua carta ↓'));
@@ -144,7 +162,7 @@ async function iniciar() {
   rolagem.topo();
   rolagem.parar();
 
-  const texto = el('p', { class: 'tirar__texto rotulo', 'aria-live': 'polite' });
+  const texto = el('p', { class: 'tirar__texto', 'aria-live': 'polite' });
   const palco = el('section', { class: 'tirar' },
     fundo(),
     el('a', { class: 'tirar__voltar rotulo', href: '/' },
@@ -154,7 +172,7 @@ async function iniciar() {
 
   const embaralhadas = embaralhar(ARCANOS);
   const leque = montarLeque(palco, embaralhadas, async (arcano, cartaEl, cartas) => {
-    await revelar({ arcano, cartaEl, cartas, palco, texto, sinal });
+    await revelar({ arcano, cartaEl, cartas, palco, texto });
     if (sinal.aborted) return;
     await mostrarResultado(arcano, palco, sinal);
   }, sinal);
@@ -180,11 +198,7 @@ async function mostrarResultado(arcano, palco, sinal) {
     salvarCarta(arcano);
   }, { signal: sinal });
 
-  // a carta revelada nasce exatamente onde o voo terminou; atrás dela, a atmosfera se abre
-  const voo = palco.querySelector('.voo');
-  const r = voo?.getBoundingClientRect();
-  const carta = revelacao.querySelector('.revelacao__carta');
-  if (r) carta.style.width = `${r.width}px`;
+  // a arte da revelação está exatamente onde a carta ampliada terminou: a troca não se vê
   app.replaceChildren(revelacao, corpo, rodape(contato));
   document.querySelectorAll('.voo').forEach((v) => v.remove());
   document.body.classList.remove('travado');
@@ -194,32 +208,26 @@ async function mostrarResultado(arcano, palco, sinal) {
 
   if (reduz()) return;
   const arte = revelacao.querySelector('.revelacao__arte');
-  const W = innerWidth;
-  const H = innerHeight;
-  const inicio = r
-    ? `inset(${r.top}px ${W - r.right}px ${H - r.bottom}px ${r.left}px round 10px)`
-    : 'inset(30% 40% 30% 40% round 10px)';
   gsap.timeline()
-    .fromTo(arte, { clipPath: inicio }, { clipPath: 'inset(0px 0px 0px 0px round 0px)', duration: 1.8, ease: 'expo.inOut' }, 0)
-    .from(revelacao.querySelector('.revelacao__veu'), { opacity: 0, duration: 1.4 }, 0.4)
+    .from(revelacao.querySelector('.revelacao__veu'), { opacity: 0, duration: 1.6, ease: 'power2.out' }, 0)
     .fromTo(revelacao.querySelector('.revelacao__moldura'),
       { clipPath: 'inset(-30px 50% -30px 50%)' },
-      { clipPath: 'inset(-30px -30px -30px -30px)', duration: 1.6, ease: 'expo.inOut' }, 0.9)
-    .from(revelacao.querySelectorAll('.revelacao__rotulos > *'), { opacity: 0, y: 12, stagger: 0.15, duration: 0.8 }, 1.8)
-    .from(revelacao.querySelector('.revelacao__dica'), { opacity: 0, duration: 0.8 }, 2.2);
+      { clipPath: 'inset(-30px -30px -30px -30px)', duration: 1.8, ease: 'expo.inOut' }, 0.1)
+    .from(revelacao.querySelectorAll('.revelacao__rotulos > *'), { opacity: 0, y: 12, stagger: 0.18, duration: 0.9 }, 1.1)
+    .from(revelacao.querySelector('.revelacao__dica'), { opacity: 0, duration: 0.9 }, 1.8);
 
-  // ao rolar: a carta sobe e diminui, a atmosfera escurece e a frase aparece
-  gsap.to(carta, {
-    yPercent: -62, scale: 0.78, ease: 'none',
+  // ao rolar: a arte se aproxima devagar e escurece, a frase surge, o cartão sobe por cima
+  gsap.to(arte, {
+    scale: 1.14, yPercent: 4, ease: 'none',
     scrollTrigger: { trigger: revelacao, start: 'top top', end: 'bottom top', scrub: true },
   });
-  gsap.to(revelacao.querySelector('.revelacao__arte'), {
-    scale: 1.3, opacity: 0.5, ease: 'none',
+  gsap.to(revelacao.querySelector('.revelacao__veu'), {
+    backgroundColor: 'rgba(18, 7, 9, 0.6)', ease: 'none',
     scrollTrigger: { trigger: revelacao, start: 'top top', end: 'bottom top', scrub: true },
   });
   gsap.fromTo(revelacao.querySelector('.revelacao__frase'), { opacity: 0, y: 30 }, {
     opacity: 1, y: 0, ease: 'none',
-    scrollTrigger: { trigger: revelacao, start: 'top+=10% top', end: 'top+=45% top', scrub: true },
+    scrollTrigger: { trigger: revelacao, start: 'top+=8% top', end: 'top+=36% top', scrub: true },
   });
   corpo.querySelectorAll('.resultado, .ponte').forEach((alvo) =>
     gsap.from(alvo, { y: 80, opacity: 0, duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: alvo, start: 'top 90%', once: true } }));
