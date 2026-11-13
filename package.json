@@ -1,0 +1,30 @@
+{
+  "name": "amaybruxa-site",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "cartas": "node scripts/baixar-cartas.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "gsap": "^3.12.5"
+  },
+  "devDependencies": {
+    "jsdom": "^25.0.1",
+    "sharp": "^0.33.5",
+    "vite": "^5.4.11",
+    "vitest": "^2.1.8"
+  },
+  "private": true
+}

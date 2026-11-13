@@ -1,0 +1,23 @@
+:root {
+  --fundo: #120709;
+  --fundo-2: #1a0a0d;
+  --vinho: #3a0d14;
+  --vinho-claro: #5a1520;
+  --ouro: #c9a45c;
+  --ouro-claro: #e6c98e;
+  --ouro-fraco: rgba(201, 164, 92, 0.35);
+  --creme: #f5efe4;
+  --creme-2: #e9dfcd;
+  --tinta: #1c1012;
+  --rosa: #b3263a;
+
+  --fonte-titulo: 'Bellefair', 'Times New Roman', serif;
+  --fonte-rotulo: 'Geist Mono', ui-monospace, monospace;
+  --fonte-texto: 'Inter', system-ui, sans-serif;
+  --fonte-script: 'Pinyon Script', 'Bellefair', cursive;
+
+  --rotulo-espaco: 0.12em;
+  --gutter: clamp(16px, 4vw, 48px);
+  --largura: 1180px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
